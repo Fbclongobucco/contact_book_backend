@@ -1,8 +1,11 @@
 package com.buccodev.contact_book.services;
 
 import com.buccodev.contact_book.dto.ContactDTO;
+import com.buccodev.contact_book.dto.LoginDTO;
 import com.buccodev.contact_book.dto.UserDTO;
+import com.buccodev.contact_book.entities.Contact;
 import com.buccodev.contact_book.entities.Users;
+import com.buccodev.contact_book.repository.ContactRepository;
 import com.buccodev.contact_book.repository.UserRepository;
 import com.buccodev.contact_book.services.exceptions.DataBaseExcepions;
 import com.buccodev.contact_book.services.exceptions.ResourceNotFoundException;
@@ -26,14 +29,20 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ContactService contactService;
 
-    public Users saveUser(UserDTO userDTO) {
+    @Autowired
+    private ContactRepository contactRepository;
+
+
+    public Long saveUser(UserDTO userDTO) {
 
         try {
 
             var user = new Users(null, userDTO.name(), passwordEncoder.encode(userDTO.password()), userDTO.email());
 
-            return userRepository.save(user);
+            return userRepository.save(user).getId();
 
         } catch (DataIntegrityViolationException | ConstraintViolationException e) {
 
@@ -57,7 +66,7 @@ public class UserService {
         var user =  userRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException(id));
 
         user.setName(userDTO.name());
-        user.setPassword(userDTO.password());
+        user.setPassword(passwordEncoder.encode(userDTO.password()));
         user.setEmail(userDTO.email());
 
         try{
@@ -82,7 +91,6 @@ public class UserService {
 
         }
 
-
     }
 
     public List<UserDTO> getAllUsers(Integer page, Integer size){
@@ -96,12 +104,39 @@ public class UserService {
 
     }
 
-    public Boolean validateUser(String email, String password){
+    public Boolean validateUser(LoginDTO loginDTO){
 
-            var user = userRepository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException(email));
+            var user = userRepository.findByEmail(loginDTO.email()).orElseThrow(()-> new ResourceNotFoundException(loginDTO.email()));
 
-            return passwordEncoder.matches(password, user.getPassword());
+            return passwordEncoder.matches(loginDTO.password(), user.getPassword());
 
+    }
+
+    public ContactDTO createContact(Long id, ContactDTO contactDTO){
+
+        var user = userRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException(id));
+
+        var newContact = contactService.saveContact(contactDTO);
+
+
+        newContact.setUsers(user);
+
+        contactRepository.save(newContact);
+
+        user.getContacts().add(newContact);
+
+        userRepository.save(user);
+
+        return contactDTO;
+    }
+
+    public ContactDTO findContactById(Long idUser, Long idContact){
+
+        var user = userRepository.findById(idUser).orElseThrow(()-> new ResourceNotFoundException(idUser));
+
+        var contact = user.getContacts().stream().filter(c -> c.getId().equals(idContact)).findFirst().orElseThrow(()-> new ResourceNotFoundException(idContact));
+
+        return new ContactDTO(contact.getName(), contact.getNumber());
     }
 
 

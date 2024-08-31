@@ -23,7 +23,7 @@ public class ContactService {
     @Autowired
     private ContactRepository contactRepository;
 
-    public Contact saveUser(ContactDTO contactDTO) {
+    public Contact saveContact(ContactDTO contactDTO) {
 
         try {
 

@@ -24,7 +24,7 @@ public class Users implements Serializable {
     @Column(nullable = false, length = 50, unique = true)
     private String email;
 
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false)
     private String password;
 
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)

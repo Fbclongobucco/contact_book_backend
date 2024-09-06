@@ -1,10 +1,10 @@
 package com.buccodev.contact_book.services.exceptions;
 
-public class DataBaseExcepions extends RuntimeException{
+public class DataBaseExceptcion extends RuntimeException{
 
     private static final long sereialVersionUId = 1L;
 
-    public DataBaseExcepions(String msg){
+    public DataBaseExceptcion(String msg){
         super(msg);
     }
 

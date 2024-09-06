@@ -3,7 +3,7 @@ package com.buccodev.contact_book.services;
 import com.buccodev.contact_book.dto.ContactDTO;
 import com.buccodev.contact_book.entities.Contact;
 import com.buccodev.contact_book.repository.ContactRepository;
-import com.buccodev.contact_book.services.exceptions.DataBaseExcepions;
+import com.buccodev.contact_book.services.exceptions.DataBaseExceptcion;
 import com.buccodev.contact_book.services.exceptions.ResourceNotFoundException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ public class ContactService {
 
         } catch (DataIntegrityViolationException | ConstraintViolationException e) {
 
-            throw new DataBaseExcepions(e.getMessage());
+            throw new DataBaseExceptcion(e.getMessage());
 
         }
 
@@ -43,7 +43,7 @@ public class ContactService {
 
         var contact =  contactRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException(id));
 
-        return new ContactDTO(contact.getName(), contact.getNumber());
+        return new ContactDTO(contact.getId(), contact.getName(), contact.getNumber());
     }
 
     public void updateUser(Long id, ContactDTO contactDTO){
@@ -59,7 +59,7 @@ public class ContactService {
 
         } catch (DataIntegrityViolationException | ConstraintViolationException e){
 
-            throw new DataBaseExcepions(e.getMessage());
+            throw new DataBaseExceptcion(e.getMessage());
 
         }
 
@@ -72,7 +72,7 @@ public class ContactService {
 
         } catch (DataIntegrityViolationException e){
 
-            throw  new DataBaseExcepions(e.getMessage());
+            throw  new DataBaseExceptcion(e.getMessage());
 
         }
 

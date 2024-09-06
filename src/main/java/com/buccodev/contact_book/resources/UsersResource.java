@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/users")
 public class UsersResource {
@@ -19,7 +20,7 @@ public class UsersResource {
     private UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<UserDTO>> getAllusers(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size){
+    public ResponseEntity<List<UserResponseDTO>> getAllusers(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size){
 
         var userDTOS = userService.getAllUsers(page, size);
 
@@ -33,19 +34,7 @@ public class UsersResource {
 
         var user = userService.findUsersById(id);
 
-        var userResponse = new UserResponseDTO(user.name(), user.contacts() );
-
-        return ResponseEntity.ok(userResponse);
-
-    }
-
-    @GetMapping("/complete/{id}")
-    public ResponseEntity<UserDTO> getUserByIdComplete(@PathVariable Long id){
-
-        var user = userService.findUsersById(id);
-
         return ResponseEntity.ok(user);
-
     }
 
     @PostMapping
@@ -60,9 +49,9 @@ public class UsersResource {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateUser(@PathVariable Long id, @RequestBody UserDTO userDTO){
+    public ResponseEntity<Void> updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO userUpdateDTO){
 
-        userService.updateUser(id, userDTO);
+        userService.updateUser(id, userUpdateDTO);
 
         return ResponseEntity.ok().build();
     }
@@ -76,13 +65,12 @@ public class UsersResource {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ValidateDTO> loginValidate(@RequestBody LoginDTO loginDTO){
+    public ResponseEntity<LoginResponseDTO> loginValidate(@RequestBody LoginDTO loginDTO){
 
         var validate = userService.validateUser(loginDTO);
 
-        var validateDTO = new ValidateDTO(validate);
 
-        return ResponseEntity.ok(validateDTO);
+        return ResponseEntity.ok(validate);
 
     }
 
@@ -103,6 +91,22 @@ public class UsersResource {
         var contact = userService.findContactById(idUser, idContact);
 
         return  ResponseEntity.ok(contact);
+    }
+
+    @PutMapping("/{idUser}/contact/{idContact}")
+    public ResponseEntity<Void> updateContact(@PathVariable Long idUser, @PathVariable Long idContact, @RequestBody ContactDTO contactDTO){
+
+        userService.updateContact(idUser, idContact, contactDTO);
+
+        return  ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{idUser}/contact/{idContact}")
+    public ResponseEntity<Void> deleteConatct(@PathVariable Long idUser, @PathVariable Long idContact){
+
+        userService.deleteContact(idUser,idContact);
+
+        return ResponseEntity.ok().build();
     }
 
 }

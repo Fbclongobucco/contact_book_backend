@@ -1,13 +1,10 @@
 package com.buccodev.contact_book.services;
 
-import com.buccodev.contact_book.dto.ContactDTO;
-import com.buccodev.contact_book.dto.LoginDTO;
-import com.buccodev.contact_book.dto.UserDTO;
-import com.buccodev.contact_book.entities.Contact;
+import com.buccodev.contact_book.dto.*;
 import com.buccodev.contact_book.entities.Users;
 import com.buccodev.contact_book.repository.ContactRepository;
 import com.buccodev.contact_book.repository.UserRepository;
-import com.buccodev.contact_book.services.exceptions.DataBaseExcepions;
+import com.buccodev.contact_book.services.exceptions.DataBaseExceptcion;
 import com.buccodev.contact_book.services.exceptions.ResourceNotFoundException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,28 +43,27 @@ public class UserService {
 
         } catch (DataIntegrityViolationException | ConstraintViolationException e) {
 
-            throw new DataBaseExcepions(e.getMessage());
+            throw new DataBaseExceptcion(e.getMessage());
 
         }
 
     }
 
-    public UserDTO findUsersById(Long id){
+    public UserResponseDTO findUsersById(Long id){
 
             var user =  userRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException(id));
 
-           List<ContactDTO> contactDTOS = user.getContacts().stream().map(x -> new ContactDTO(x.getName(), x.getNumber())).toList();
+           List<ContactDTO> contactDTOS = user.getContacts().stream().map(x -> new ContactDTO(x.getId(), x.getName(), x.getNumber())).toList();
 
-        return new UserDTO(user.getName(), user.getPassword(), user.getEmail(), contactDTOS);
+        return new UserResponseDTO(user.getId(),user.getName(), user.getEmail(), contactDTOS);
     }
 
-    public void updateUser(Long id, UserDTO userDTO){
+    public void updateUser(Long id, UserUpdateDTO userUpdateDTO){
 
         var user =  userRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException(id));
 
-        user.setName(userDTO.name());
-        user.setPassword(passwordEncoder.encode(userDTO.password()));
-        user.setEmail(userDTO.email());
+        user.setName(userUpdateDTO.name());
+        user.setEmail(userUpdateDTO.email());
 
         try{
 
@@ -75,7 +71,7 @@ public class UserService {
 
         } catch (DataIntegrityViolationException | ConstraintViolationException e){
 
-            throw new DataBaseExcepions(e.getMessage());
+            throw new DataBaseExceptcion(e.getMessage());
 
         }
 
@@ -85,31 +81,40 @@ public class UserService {
 
         try {
             userRepository.deleteById(id);
+
         } catch (DataIntegrityViolationException e){
 
-            throw  new DataBaseExcepions(e.getMessage());
+            throw  new DataBaseExceptcion(e.getMessage());
 
         }
 
     }
 
-    public List<UserDTO> getAllUsers(Integer page, Integer size){
+    public List<UserResponseDTO> getAllUsers(Integer page, Integer size){
 
         Pageable pageable = PageRequest.of(page, size);
 
         Page<Users> users = userRepository.findAll(pageable);
 
-        return users.stream().map(x -> new UserDTO(x.getName(), x.getPassword(), x.getEmail(), x.getContacts().stream()
-                .map(c -> new ContactDTO(c.getName(), c.getNumber())).toList())).toList();
+        return users.stream().map(x -> new UserResponseDTO(x.getId(), x.getName(), x.getEmail(), x.getContacts().stream()
+                .map(c -> new ContactDTO(c.getId(), c.getName(), c.getNumber())).toList())).toList();
 
     }
 
-    public Boolean validateUser(LoginDTO loginDTO){
+    public LoginResponseDTO validateUser(LoginDTO loginDTO){
 
-            var user = userRepository.findByEmail(loginDTO.email()).orElseThrow(()-> new ResourceNotFoundException(loginDTO.email()));
+           try {
+               var user = userRepository.findByEmail(loginDTO.email()).orElseThrow(() -> new ResourceNotFoundException(loginDTO.email()));
 
-            return passwordEncoder.matches(loginDTO.password(), user.getPassword());
+               var sucess = passwordEncoder.matches(loginDTO.password(), user.getPassword());
 
+               return new LoginResponseDTO(sucess, user.getId());
+
+           } catch (Exception e){
+
+               throw new ResourceNotFoundException(loginDTO.email());
+
+           }
     }
 
     public ContactDTO createContact(Long id, ContactDTO contactDTO){
@@ -136,8 +141,41 @@ public class UserService {
 
         var contact = user.getContacts().stream().filter(c -> c.getId().equals(idContact)).findFirst().orElseThrow(()-> new ResourceNotFoundException(idContact));
 
-        return new ContactDTO(contact.getName(), contact.getNumber());
+        return new ContactDTO(null, contact.getName(), contact.getNumber());
     }
 
+    public void updateContact(Long idUser, Long idcontact, ContactDTO contactDTO){
 
+        var user = userRepository.findById(idUser).orElseThrow(()-> new ResourceNotFoundException(idUser));
+
+        var contact = user.getContacts().stream().filter(c->c.getId().equals(idcontact)).
+                findFirst().orElseThrow(()->new ResourceNotFoundException(idcontact));
+
+        contact.setName(contactDTO.name());
+        contact.setNumber(contactDTO.number());
+
+        contactRepository.save(contact);
+    }
+
+    public void deleteContact(Long idUser, Long idContact){
+
+        var user = userRepository.findById(idUser).orElseThrow(()-> new ResourceNotFoundException(idUser));
+
+        var contact = user.getContacts().stream().filter(c -> c.getId().equals(idContact))
+                .findFirst().orElseThrow(()-> new ResourceNotFoundException(idContact));
+        user.getContacts().remove(contact);
+
+       try {
+
+           contactRepository.deleteById(contact.getId());
+
+           userRepository.save(user);
+
+       } catch (DataIntegrityViolationException | ResourceNotFoundException e){
+
+           throw  new DataBaseExceptcion(e.getMessage());
+
+       }
+
+    }
 }

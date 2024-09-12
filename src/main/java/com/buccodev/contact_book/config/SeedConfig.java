@@ -1,17 +1,24 @@
 package com.buccodev.contact_book.config;
 
 import com.buccodev.contact_book.entities.Contact;
+import com.buccodev.contact_book.entities.Roles;
 import com.buccodev.contact_book.entities.Users;
 import com.buccodev.contact_book.repository.ContactRepository;
+import com.buccodev.contact_book.repository.RolesRepository;
 import com.buccodev.contact_book.repository.UserRepository;
 import com.buccodev.contact_book.services.ContactService;
 import com.buccodev.contact_book.services.UserService;
 import com.github.javafaker.Faker;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.Locale;
 import java.util.Random;
+import java.util.Set;
 
 @Configuration
 public class SeedConfig implements CommandLineRunner {
@@ -23,33 +30,41 @@ public class SeedConfig implements CommandLineRunner {
     public UserRepository userRepository;
 
     @Autowired
-    public Faker faker;
+    public RolesRepository rolesRepository;
+
+    @Autowired
+    public BCryptPasswordEncoder passwordEncoder;
+
+
+    @Bean
+    public Faker faker(){
+        return new Faker(Locale.ENGLISH);
+    }
 
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
 
-        for( int i = 0; i < 12; i++ ){
-
-            Users users = new Users(null, faker.name().name(), faker.internet().password(), faker.internet().emailAddress()+i);
-
-            userRepository.save(users);
-
-            for(int j = 0; j < 10; j++){
-                Contact contact = new Contact(null, faker.name().name()+j+new Random().hashCode(), faker.number().digits(11));
-
-                contact.setUsers(users);
+/*        var roleAdmin = rolesRepository.findByName(Roles.Values.ADMIN.name().toLowerCase());
 
 
-                contactRepository.save(contact);
+        var userAdmin = userRepository.findByEmail("longobucco@gmail.com");
 
-                users.getContacts().add(contact);
-
-                userRepository.save(users);
-            }
-
-        }
-
+        userAdmin.ifPresentOrElse(
+                user -> {
+                    System.out.println("admin ja existe");
+                },
+                () -> {
+                    var user = new Users();
+                    user.setName("Fabricio Longo Bucco");
+                    user.setEmail("longobucco@gmail.com");
+                    user.setPassword(passwordEncoder.encode("123"));
+                    user.setRoles(Set.of(roleAdmin));
+                    userRepository.save(user);
+                }
+        ); */
 
     }
+
 }

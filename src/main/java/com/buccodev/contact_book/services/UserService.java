@@ -1,27 +1,38 @@
 package com.buccodev.contact_book.services;
 
 import com.buccodev.contact_book.dto.*;
+import com.buccodev.contact_book.entities.Roles;
 import com.buccodev.contact_book.entities.Users;
 import com.buccodev.contact_book.repository.ContactRepository;
+import com.buccodev.contact_book.repository.RolesRepository;
 import com.buccodev.contact_book.repository.UserRepository;
 import com.buccodev.contact_book.services.exceptions.DataBaseExceptcion;
 import com.buccodev.contact_book.services.exceptions.ResourceNotFoundException;
+import jakarta.transaction.Transactional;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     private UserRepository userRepository;
@@ -32,12 +43,22 @@ public class UserService {
     @Autowired
     private ContactRepository contactRepository;
 
+    @Autowired
+    private RolesRepository rolesRepository;
 
+    @Autowired
+    private JwtEncoder jwtEncoder;
+
+    @Transactional
     public Long saveUser(UserDTO userDTO) {
 
         try {
 
             var user = new Users(null, userDTO.name(), passwordEncoder.encode(userDTO.password()), userDTO.email());
+
+            var roleBasic = rolesRepository.findByName(Roles.Values.BASIC.name().toLowerCase());
+
+            user.setRoles(Set.of(roleBasic));
 
             return userRepository.save(user).getId();
 
@@ -101,21 +122,36 @@ public class UserService {
 
     }
 
-    public LoginResponseDTO validateUser(LoginDTO loginDTO){
+    public LoginResponseDTO validateUser(LoginDTO loginDTO) {
 
-           try {
-               var user = userRepository.findByEmail(loginDTO.email()).orElseThrow(() -> new ResourceNotFoundException(loginDTO.email()));
 
-               var sucess = passwordEncoder.matches(loginDTO.password(), user.getPassword());
+            var user = userRepository.findByEmail(loginDTO.email()).orElseThrow(() -> new ResourceNotFoundException(loginDTO.email()));
 
-               return new LoginResponseDTO(sucess, user.getId());
+            if (!user.isLoginCorrect(loginDTO, passwordEncoder)) {
+                throw  new BadCredentialsException("user or password is invalid");
+            }
 
-           } catch (Exception e){
+        var now = Instant.now();
+        var expiresIn = 300L;
 
-               throw new ResourceNotFoundException(loginDTO.email());
+        var scopes = user.getRoles()
+                .stream()
+                .map(Roles::getName)
+                .collect(Collectors.joining(" "));
 
-           }
+        var claims = JwtClaimsSet.builder()
+                .issuer("mybackend")
+                .subject(user.getId().toString())
+                .issuedAt(now)
+                .expiresAt(now.plusSeconds(expiresIn))
+                .claim("scope", scopes)
+                .build();
+
+        var jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+
+        return new LoginResponseDTO(jwtValue, expiresIn);
     }
+
 
     public ContactDTO createContact(Long id, ContactDTO contactDTO){
 

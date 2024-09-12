@@ -1,6 +1,8 @@
 package com.buccodev.contact_book.entities;
 
+import com.buccodev.contact_book.dto.LoginDTO;
 import jakarta.persistence.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -30,8 +32,18 @@ public class Users implements Serializable {
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<Contact> contacts = new ArrayList<>();
 
-    public Users(){
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "tb_users_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Roles> roles;
+
+
+    public Users() {
     }
+
 
     public Users(Long id, String name, String password, String email) {
         this.id = id;
@@ -40,6 +52,7 @@ public class Users implements Serializable {
         this.email = email;
     }
 
+    // Getters e Setters
     public Long getId() {
         return id;
     }
@@ -76,6 +89,18 @@ public class Users implements Serializable {
         return contacts;
     }
 
+    public void setContacts(List<Contact> contacts) {
+        this.contacts = contacts;
+    }
+
+    public Set<Roles> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Roles> roles) {
+        this.roles = roles;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -88,5 +113,10 @@ public class Users implements Serializable {
     @Override
     public int hashCode() {
         return id.hashCode();
+    }
+
+    public boolean isLoginCorrect(LoginDTO loginDTO, PasswordEncoder passwordEncoder) {
+
+        return passwordEncoder.matches(loginDTO.password(), this.password);
     }
 }

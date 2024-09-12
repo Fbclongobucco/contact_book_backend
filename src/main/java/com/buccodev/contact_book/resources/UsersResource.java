@@ -5,6 +5,8 @@ import com.buccodev.contact_book.services.UserService;
 import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ public class UsersResource {
     private UserService userService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     public ResponseEntity<List<UserResponseDTO>> getAllusers(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size){
 
         var userDTOS = userService.getAllUsers(page, size);
@@ -30,9 +33,9 @@ public class UsersResource {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id){
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id, JwtAuthenticationToken token){
 
-        var user = userService.findUsersById(id);
+        var user = userService.findUsersById(Long.parseLong(token.getName()));
 
         return ResponseEntity.ok(user);
     }

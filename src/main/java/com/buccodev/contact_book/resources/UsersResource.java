@@ -3,6 +3,7 @@ package com.buccodev.contact_book.resources;
 import com.buccodev.contact_book.dto.*;
 import com.buccodev.contact_book.services.UserService;
 import org.apache.catalina.User;
+import org.aspectj.weaver.patterns.IToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,7 +36,7 @@ public class UsersResource {
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id, JwtAuthenticationToken token){
 
-        var user = userService.findUsersById(Long.parseLong(token.getName()));
+        var user = userService.findUsersById(id, token);
 
         return ResponseEntity.ok(user);
     }
@@ -43,7 +44,7 @@ public class UsersResource {
     @PostMapping
     public ResponseEntity<String> saveUser(@RequestBody UserDTO userDTO){
 
-        var idSalved = userService.saveUser(userDTO);
+        var idSalved = userService.createUser(userDTO);
 
         var resposnse = "new user saved with id: "+idSalved;
 
@@ -51,18 +52,32 @@ public class UsersResource {
 
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Void> updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO userUpdateDTO){
+    @PostMapping("/create_admin")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
+    public ResponseEntity<String> createAdminUser(@RequestBody UserDTO userDTO){
 
-        userService.updateUser(id, userUpdateDTO);
+        var idSalved = userService.createAdminUser(userDTO);
+
+        var resposnse = "new admin user saved with id: "+idSalved;
+
+        return ResponseEntity.ok(resposnse);
+
+    }
+
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO userUpdateDTO, JwtAuthenticationToken token){
+
+        userService.updateUser(id, userUpdateDTO, token);
 
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUserById(@PathVariable Long id){
+    public ResponseEntity<Void> deleteUserById(@PathVariable Long id, JwtAuthenticationToken token){
 
-        userService.deleteUsersById(id);
+        userService.deleteUsersById(id, token);
 
         return ResponseEntity.ok().build();
     }
@@ -78,9 +93,9 @@ public class UsersResource {
     }
 
     @PostMapping("/{id}/contact")
-    public ResponseEntity<String> createContact(@PathVariable Long id, @RequestBody ContactDTO contactDTO){
+    public ResponseEntity<String> createContact(@PathVariable Long id, @RequestBody ContactDTO contactDTO, JwtAuthenticationToken token){
 
-        var contact = userService.createContact(id, contactDTO);
+        var contact = userService.createContact(id, contactDTO, token);
 
         var msg = "contact "+contact.name()+" salved!";
 
@@ -89,25 +104,25 @@ public class UsersResource {
     }
 
     @GetMapping("/{idUser}/contact/{idContact}")
-    public ResponseEntity<ContactDTO> findContactById(@PathVariable Long idUser, @PathVariable Long idContact){
+    public ResponseEntity<ContactDTO> findContactById(@PathVariable Long idUser, @PathVariable Long idContact, JwtAuthenticationToken token){
 
-        var contact = userService.findContactById(idUser, idContact);
+        var contact = userService.findContactById(idUser, idContact, token);
 
         return  ResponseEntity.ok(contact);
     }
 
     @PutMapping("/{idUser}/contact/{idContact}")
-    public ResponseEntity<Void> updateContact(@PathVariable Long idUser, @PathVariable Long idContact, @RequestBody ContactDTO contactDTO){
+    public ResponseEntity<Void> updateContact(@PathVariable Long idUser, @PathVariable Long idContact, @RequestBody ContactDTO contactDTO, JwtAuthenticationToken token){
 
-        userService.updateContact(idUser, idContact, contactDTO);
+        userService.updateContact(idUser, idContact, contactDTO, token);
 
         return  ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{idUser}/contact/{idContact}")
-    public ResponseEntity<Void> deleteConatct(@PathVariable Long idUser, @PathVariable Long idContact){
+    public ResponseEntity<Void> deleteConatct(@PathVariable Long idUser, @PathVariable Long idContact, JwtAuthenticationToken token){
 
-        userService.deleteContact(idUser,idContact);
+        userService.deleteContact(idUser,idContact, token);
 
         return ResponseEntity.ok().build();
     }

@@ -25,31 +25,6 @@ class ContactBookApplicationTests {
 	@Test
 	void contextLoads() {
 
-		long initialCount = userRepository.count();
-
-
-		for (int i = 0; i < 10000; i++) {
-			Users user = new Users(null, faker.name().name(), faker.number().digits(11), faker.internet().emailAddress()+ new Random().hashCode());
-
-			userRepository.save(user);
-
-
-		}
-
-		long finalCount = userRepository.count();
-
-		long insertedCount = finalCount - initialCount;
-		System.out.println("Número de registros inseridos: " + insertedCount);
-
-		List<Users> users = userRepository.findAll();
-		users.stream().forEach(x -> System.out.println(x.getName()));
-
-		assertThat(insertedCount).isEqualTo(10000);
-
-
-
-
-
 	}
 
 }

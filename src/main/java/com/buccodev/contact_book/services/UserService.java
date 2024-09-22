@@ -183,7 +183,7 @@ public class UserService {
             }
 
         var now = Instant.now();
-        var expiresIn = 300L;
+        var expiresIn = 500L;
 
         var scopes = user.getRoles()
                 .stream()

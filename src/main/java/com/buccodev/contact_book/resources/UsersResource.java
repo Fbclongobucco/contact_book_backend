@@ -92,39 +92,5 @@ public class UsersResource {
 
     }
 
-    @PostMapping("/{id}/contact")
-    public ResponseEntity<String> createContact(@PathVariable Long id, @RequestBody ContactDTO contactDTO, JwtAuthenticationToken token){
-
-        var contact = userService.createContact(id, contactDTO, token);
-
-        var msg = "contact "+contact.name()+" salved!";
-
-        return ResponseEntity.ok(msg);
-
-    }
-
-    @GetMapping("/{idUser}/contact/{idContact}")
-    public ResponseEntity<ContactDTO> findContactById(@PathVariable Long idUser, @PathVariable Long idContact, JwtAuthenticationToken token){
-
-        var contact = userService.findContactById(idUser, idContact, token);
-
-        return  ResponseEntity.ok(contact);
-    }
-
-    @PutMapping("/{idUser}/contact/{idContact}")
-    public ResponseEntity<Void> updateContact(@PathVariable Long idUser, @PathVariable Long idContact, @RequestBody ContactDTO contactDTO, JwtAuthenticationToken token){
-
-        userService.updateContact(idUser, idContact, contactDTO, token);
-
-        return  ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/{idUser}/contact/{idContact}")
-    public ResponseEntity<Void> deleteConatct(@PathVariable Long idUser, @PathVariable Long idContact, JwtAuthenticationToken token){
-
-        userService.deleteContact(idUser,idContact, token);
-
-        return ResponseEntity.ok().build();
-    }
 
 }

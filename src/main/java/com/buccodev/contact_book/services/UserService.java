@@ -43,9 +43,6 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private ContactService contactService;
-
-    @Autowired
     private ContactRepository contactRepository;
 
     @Autowired
@@ -98,7 +95,7 @@ public class UserService {
 
     public UserResponseDTO findUsersById(Long id, JwtAuthenticationToken token) {
 
-        var userIdFromToken = extractUserIdFromToken(token);
+       var userIdFromToken = extractUserIdFromToken(token);
 
 
        var requestingUser = getUserById(userIdFromToken);
@@ -114,7 +111,7 @@ public class UserService {
 
         } else {
 
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acesso negado!");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied!");
 
         }
     }
@@ -211,7 +208,7 @@ public class UserService {
         var targetUser = getUserById(id);
 
         if (isAuthorized(userRequesting, targetUser)) {
-            Contact newContact = contactService.saveContact(contactDTO);
+            Contact newContact = contactRepository.save(new Contact(null,contactDTO.name(), contactDTO.number()));
             newContact.setUsers(targetUser);
             contactRepository.save(newContact);
 
@@ -223,6 +220,8 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied!");
         }
     }
+
+
 
     public ContactDTO findContactById(Long idUser, Long idContact, JwtAuthenticationToken token){
 
@@ -242,6 +241,23 @@ public class UserService {
 
         }
     }
+
+    public List<ContactDTO> getContactsByUsersId(Long userId, Integer page, Integer size, JwtAuthenticationToken token){
+
+        Long userIdFromToken = extractUserIdFromToken(token);
+
+        if (!userIdFromToken.equals(userId)) {
+            throw new BadCredentialsException("you are not allowed to access these contacts.");
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<ContactDTO> contactsDTO = contactRepository.findByUsersId(userId, pageable)
+                .map(contact -> new ContactDTO(contact.getId(), contact.getName(), contact.getNumber()));
+
+        return contactsDTO.getContent();
+    }
+
 
     public void updateContact(Long idUser, Long idcontact, ContactDTO contactDTO, JwtAuthenticationToken token){
 
@@ -314,7 +330,6 @@ public class UserService {
                 .map(contact -> new ContactDTO(contact.getId(), contact.getName(), contact.getNumber()))
                 .toList();
     }
-
 
 }
 

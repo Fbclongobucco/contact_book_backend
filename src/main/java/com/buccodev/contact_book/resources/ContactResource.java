@@ -2,6 +2,7 @@ package com.buccodev.contact_book.resources;
 
 import com.buccodev.contact_book.dto.ContactDTO;
 import com.buccodev.contact_book.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
@@ -11,11 +12,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/contacts")
 public class ContactResource {
 
-    private final UserService userService;
+    @Autowired
+    private UserService userService;
 
-    public ContactResource(UserService userService) {
-        this.userService = userService;
-    }
 
 
     @PostMapping("/{id}/contact")

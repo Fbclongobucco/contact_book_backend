@@ -8,8 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 
@@ -39,7 +37,5 @@ public class ResourceExceptionHandler {
         StandardError err = new StandardError(Instant.now(), status.value(),error , e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);
     }
-
-
 
 }

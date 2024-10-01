@@ -15,11 +15,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @SpringBootTest
 class ContactBookApplicationTests {
 
-	@Autowired
-	private UserRepository userRepository;
-
-	@Autowired
-	private Faker faker;
 
 
 	@Test

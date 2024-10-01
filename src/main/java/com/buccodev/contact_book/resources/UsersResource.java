@@ -92,5 +92,17 @@ public class UsersResource {
 
     }
 
+    @GetMapping("/{idUser}/contacts")
+    public ResponseEntity<List<ContactDTO>> getContactsByUsers(
+            @PathVariable Long idUser,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            JwtAuthenticationToken token
+    ){
+        var contacts = userService.getContactsByUsersId(idUser, page, size, token);
+
+        return ResponseEntity.ok(contacts);
+    }
+
 
 }

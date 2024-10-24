@@ -26,13 +26,13 @@ public class ResourceExceptionHandler {
     public ResponseEntity<StandardError> database(DataBaseExceptcion e, HttpServletRequest request){
         String error = "database error";
         HttpStatus status = HttpStatus.BAD_REQUEST;
-        StandardError err = new StandardError(Instant.now(), status.value(),error , e.getMessage(), request.getRequestURI());
+        StandardError err = new StandardError(Instant.now(), status.value(), error , e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<StandardError> badCredentials(BadCredentialsException e, HttpServletRequest request){
-        String error = "database error";
+        String error = "Bad Credentiaals";
         HttpStatus status = HttpStatus.FORBIDDEN;
         StandardError err = new StandardError(Instant.now(), status.value(),error , e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);

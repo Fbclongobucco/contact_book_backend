@@ -19,13 +19,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
@@ -36,301 +34,298 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+	@Autowired
+	private BCryptPasswordEncoder passwordEncoder;
 
-    @Autowired
-    private UserRepository userRepository;
+	@Autowired
+	private UserRepository userRepository;
 
-    @Autowired
-    private ContactRepository contactRepository;
+	@Autowired
+	private ContactRepository contactRepository;
 
-    @Autowired
-    private RolesRepository rolesRepository;
+	@Autowired
+	private RolesRepository rolesRepository;
 
-    @Autowired
-    private JwtEncoder jwtEncoder;
+	@Autowired
+	private JwtEncoder jwtEncoder;
 
-    @Transactional
-    public Long createUser(UserDTO userDTO) {
+	@Transactional
+	public Long createUser(UserDTO userDTO) {
 
-        try {
+		try {
 
-            var user = new Users(null, userDTO.name(), passwordEncoder.encode(userDTO.password()), userDTO.email());
+			var user = new Users(null, userDTO.name(), passwordEncoder.encode(userDTO.password()), userDTO.email());
 
-            var roleBasic = rolesRepository.findByName(Roles.Values.BASIC.name().toLowerCase());
+			var roleBasic = rolesRepository.findByName(Roles.Values.BASIC.name().toLowerCase());
 
-            user.setRoles(Set.of(roleBasic));
+			user.setRoles(Set.of(roleBasic));
 
-            return userRepository.save(user).getId();
+			var contacts = userDTO.contacts().stream().map(c -> {
+				var contact = new Contact(null, c.name(), c.number());
+				contact.setUsers(user);
+				return contact;
+			}).collect(Collectors.toList());
 
-        } catch (DataIntegrityViolationException | ConstraintViolationException e) {
+			contactRepository.saveAll(contacts);
 
-            throw new DataBaseExceptcion(e.getMessage());
+			
+			user.getContacts().addAll(contacts);
 
-        }
+			return userRepository.save(user).getId();
 
-    }
+		} catch (DataIntegrityViolationException | ConstraintViolationException e) {
 
-    @Transactional
-    public Long createAdminUser(UserDTO userDTO) {
+			throw new DataBaseExceptcion(e.getMessage());
 
-        try {
+		}
 
-            var user = new Users(null, userDTO.name(), passwordEncoder.encode(userDTO.password()), userDTO.email());
+	}
 
-            var roleAdmin = rolesRepository.findByName(Roles.Values.ADMIN.name().toLowerCase());
+	@Transactional
+	public Long createAdminUser(UserDTO userDTO) {
 
-            user.setRoles(Set.of(roleAdmin));
+		try {
 
-            return userRepository.save(user).getId();
+			var user = new Users(null, userDTO.name(), passwordEncoder.encode(userDTO.password()), userDTO.email());
 
-        } catch (DataIntegrityViolationException | ConstraintViolationException e) {
+			var roleAdmin = rolesRepository.findByName(Roles.Values.ADMIN.name().toLowerCase());
 
-            throw new DataBaseExceptcion(e.getMessage());
+			user.setRoles(Set.of(roleAdmin));
 
-        }
+			return userRepository.save(user).getId();
 
-    }
+		} catch (DataIntegrityViolationException | ConstraintViolationException e) {
 
-    public UserResponseDTO findUsersById(Long id, JwtAuthenticationToken token) {
+			throw new DataBaseExceptcion(e.getMessage());
 
-       var userIdFromToken = extractUserIdFromToken(token);
+		}
 
+	}
 
-       var requestingUser = getUserById(userIdFromToken);
+	public UserResponseDTO findUsersById(Long id, JwtAuthenticationToken token) {
 
+		var userIdFromToken = extractUserIdFromToken(token);
 
-        var targetUser = getUserById(id);
+		var requestingUser = getUserById(userIdFromToken);
 
-        if (isAuthorized(requestingUser, targetUser)) {
+		var targetUser = getUserById(id);
 
-            List<ContactDTO> contactDTOS = convertToContactDTOs(targetUser.getContacts());
+		if (isAuthorized(requestingUser, targetUser)) {
 
-            return new UserResponseDTO(targetUser.getId(), targetUser.getName(), targetUser.getEmail(), contactDTOS);
+			List<ContactDTO> contactDTOS = convertToContactDTOs(targetUser.getContacts());
 
-        } else {
+			return new UserResponseDTO(targetUser.getId(), targetUser.getName(), targetUser.getEmail(), contactDTOS);
 
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied!");
+		} else {
 
-        }
-    }
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied!");
 
-    public void updateUser(Long id, UserUpdateDTO userUpdateDTO, JwtAuthenticationToken token){
+		}
+	}
 
-        var idToken = extractUserIdFromToken(token);
+	@Transactional
+	public void updateUser(Long id, UserUpdateDTO userUpdateDTO, JwtAuthenticationToken token) {
 
-        var userFromToken = getUserById(idToken);
+		var idToken = extractUserIdFromToken(token);
 
-        var user =  getUserById(id);
+		var userFromToken = getUserById(idToken);
 
-        if(isAuthorized(userFromToken, user)) {
+		var user = getUserById(id);
 
-            user.setName(userUpdateDTO.name());
-            user.setEmail(userUpdateDTO.email());
-            userRepository.save(user);
+		if (isAuthorized(userFromToken, user)) {
 
-        } else{
+			user.setName(userUpdateDTO.name());
+			user.setEmail(userUpdateDTO.email());
+			userRepository.save(user);
 
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied!");
+		} else {
 
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied!");
 
-        }
+		}
 
-    }
+	}
 
-    public void deleteUsersById(Long id, JwtAuthenticationToken token){
+	public void deleteUsersById(Long id, JwtAuthenticationToken token) {
 
-        var idToken = extractUserIdFromToken(token);
+		var idToken = extractUserIdFromToken(token);
 
-        var userFromToken = getUserById(idToken);
+		var userFromToken = getUserById(idToken);
 
-        var user =  getUserById(id);
+		var user = getUserById(id);
 
-        if(isAuthorized(userFromToken, user)) {
+		if (isAuthorized(userFromToken, user)) {
 
-            userRepository.deleteById(id);
+			userRepository.deleteById(id);
 
-        } else{
+		} else {
 
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied!");
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied!");
 
-        }
+		}
 
-    }
+	}
 
-    public List<UserResponseDTO> getAllUsers(Integer page, Integer size){
+	public List<UserResponseDTO> getAllUsers(Integer page, Integer size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+		Pageable pageable = PageRequest.of(page, size);
 
-        Page<Users> users = userRepository.findAll(pageable);
+		Page<Users> users = userRepository.findAll(pageable);
 
-        return users.stream().map(x -> new UserResponseDTO(x.getId(), x.getName(), x.getEmail(), x.getContacts().stream()
-                .map(c -> new ContactDTO(c.getId(), c.getName(), c.getNumber())).toList())).toList();
+		return users.stream().map(x -> new UserResponseDTO(x.getId(), x.getName(), x.getEmail(),
+				x.getContacts().stream().map(c -> new ContactDTO(c.getId(), c.getName(), c.getNumber())).toList()))
+				.toList();
 
-    }
+	}
 
-    public LoginResponseDTO validateUser(LoginDTO loginDTO) {
+	public LoginResponseDTO validateUser(LoginDTO loginDTO) {
 
+		var user = userRepository.findByEmail(loginDTO.email())
+				.orElseThrow(() -> new ResourceNotFoundException(loginDTO.email()));
 
-            var user = userRepository.findByEmail(loginDTO.email()).orElseThrow(() -> new ResourceNotFoundException(loginDTO.email()));
+		if (!user.isLoginCorrect(loginDTO, passwordEncoder)) {
+			throw new BadCredentialsException("user or password is invalid");
+		}
 
-            if (!user.isLoginCorrect(loginDTO, passwordEncoder)) {
-                throw  new BadCredentialsException("user or password is invalid");
-            }
+		var now = Instant.now();
+		var expiresIn = 500L;
 
-        var now = Instant.now();
-        var expiresIn = 500L;
+		var scopes = user.getRoles().stream().map(Roles::getName).collect(Collectors.joining(" "));
 
-        var scopes = user.getRoles()
-                .stream()
-                .map(Roles::getName)
-                .collect(Collectors.joining(" "));
+		var claims = JwtClaimsSet.builder().issuer("mybackend").subject(user.getId().toString()).issuedAt(now)
+				.expiresAt(now.plusSeconds(expiresIn)).claim("scope", scopes).build();
 
-        var claims = JwtClaimsSet.builder()
-                .issuer("mybackend")
-                .subject(user.getId().toString())
-                .issuedAt(now)
-                .expiresAt(now.plusSeconds(expiresIn))
-                .claim("scope", scopes)
-                .build();
+		var jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 
-        var jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+		return new LoginResponseDTO(jwtValue, expiresIn);
+	}
 
-        return new LoginResponseDTO(jwtValue, expiresIn);
-    }
+	@Transactional
+	public ContactDTO createContact(Long id, ContactDTO contactDTO, JwtAuthenticationToken token) {
 
-    @Transactional
-    public ContactDTO createContact(Long id, ContactDTO contactDTO, JwtAuthenticationToken token) {
+		var userIdFromToken = extractUserIdFromToken(token);
+		var userRequesting = getUserById(userIdFromToken);
+		var targetUser = getUserById(id);
 
-        var userIdFromToken = extractUserIdFromToken(token);
-        var userRequesting = getUserById(userIdFromToken);
-        var targetUser = getUserById(id);
+		if (isAuthorized(userRequesting, targetUser)) {
+			Contact newContact = contactRepository.save(new Contact(null, contactDTO.name(), contactDTO.number()));
+			newContact.setUsers(targetUser);
+			contactRepository.save(newContact);
 
-        if (isAuthorized(userRequesting, targetUser)) {
-            Contact newContact = contactRepository.save(new Contact(null,contactDTO.name(), contactDTO.number()));
-            newContact.setUsers(targetUser);
-            contactRepository.save(newContact);
+			targetUser.getContacts().add(newContact);
+			userRepository.save(targetUser);
 
-            targetUser.getContacts().add(newContact);
-            userRepository.save(targetUser);
+			return contactDTO;
+		} else {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied!");
+		}
+	}
 
-            return contactDTO;
-        } else {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied!");
-        }
-    }
+	public ContactDTO findContactById(Long idUser, Long idContact, JwtAuthenticationToken token) {
 
+		var userIdFromToken = extractUserIdFromToken(token);
+		var userRequesting = getUserById(userIdFromToken);
+		var targetUser = getUserById(idUser);
 
+		if (isAuthorized(userRequesting, targetUser)) {
 
-    public ContactDTO findContactById(Long idUser, Long idContact, JwtAuthenticationToken token){
+			var contact = targetUser.getContacts().stream().filter(c -> c.getId().equals(idContact)).findFirst()
+					.orElseThrow(() -> new ResourceNotFoundException(idContact));
 
-        var userIdFromToken = extractUserIdFromToken(token);
-        var userRequesting = getUserById(userIdFromToken);
-        var targetUser = getUserById(idUser);
+			return new ContactDTO(contact.getId(), contact.getName(), contact.getNumber());
 
-        if(isAuthorized(userRequesting, targetUser)) {
+		} else {
 
-            var contact = targetUser.getContacts().stream().filter(c -> c.getId().equals(idContact)).findFirst().orElseThrow(() -> new ResourceNotFoundException(idContact));
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied!");
 
-            return new ContactDTO(contact.getId(), contact.getName(), contact.getNumber());
+		}
+	}
 
-        } else{
+	public List<ContactDTO> getContactsByUsersId(Long userId, Integer page, Integer size,
+			JwtAuthenticationToken token) {
 
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied!");
+		Long userIdFromToken = extractUserIdFromToken(token);
 
-        }
-    }
+		if (!userIdFromToken.equals(userId)) {
+			throw new BadCredentialsException("you are not allowed to access these contacts.");
+		}
 
-    public List<ContactDTO> getContactsByUsersId(Long userId, Integer page, Integer size, JwtAuthenticationToken token){
+		Pageable pageable = PageRequest.of(page, size);
 
-        Long userIdFromToken = extractUserIdFromToken(token);
+		Page<ContactDTO> contactsDTO = contactRepository.findByUsersId(userId, pageable)
+				.map(contact -> new ContactDTO(contact.getId(), contact.getName(), contact.getNumber()));
 
-        if (!userIdFromToken.equals(userId)) {
-            throw new BadCredentialsException("you are not allowed to access these contacts.");
-        }
+		return contactsDTO.getContent();
+	}
 
-        Pageable pageable = PageRequest.of(page, size);
+	public void updateContact(Long idUser, Long idcontact, ContactDTO contactDTO, JwtAuthenticationToken token) {
 
-        Page<ContactDTO> contactsDTO = contactRepository.findByUsersId(userId, pageable)
-                .map(contact -> new ContactDTO(contact.getId(), contact.getName(), contact.getNumber()));
+		var userIdFromToken = extractUserIdFromToken(token);
+		var userRequesting = getUserById(userIdFromToken);
+		var targetUser = getUserById(idUser);
 
-        return contactsDTO.getContent();
-    }
+		if (isAuthorized(userRequesting, targetUser)) {
 
+			var contact = targetUser.getContacts().stream().filter(c -> c.getId().equals(idcontact)).findFirst()
+					.orElseThrow(() -> new ResourceNotFoundException(idcontact));
 
-    public void updateContact(Long idUser, Long idcontact, ContactDTO contactDTO, JwtAuthenticationToken token){
+			contact.setName(contactDTO.name());
+			contact.setNumber(contactDTO.number());
 
-        var userIdFromToken = extractUserIdFromToken(token);
-        var userRequesting = getUserById(userIdFromToken);
-        var targetUser = getUserById(idUser);
+			contactRepository.save(contact);
 
-        if(isAuthorized(userRequesting, targetUser)) {
+		} else {
 
-            var contact = targetUser.getContacts().stream().filter(c -> c.getId().equals(idcontact)).
-                    findFirst().orElseThrow(() -> new ResourceNotFoundException(idcontact));
+			throw new BadCredentialsException("Access denied!");
 
-            contact.setName(contactDTO.name());
-            contact.setNumber(contactDTO.number());
+		}
+	}
 
-            contactRepository.save(contact);
+	public void deleteContact(Long idUser, Long idContact, JwtAuthenticationToken token) {
 
-        } else{
+		var userIdFromToken = extractUserIdFromToken(token);
+		var userRequesting = getUserById(userIdFromToken);
+		var targetUser = getUserById(idUser);
 
-            throw new BadCredentialsException("Access denied!");
+		if (isAuthorized(userRequesting, targetUser)) {
 
-        }
-    }
+			var contact = targetUser.getContacts().stream().filter(c -> c.getId().equals(idContact)).findFirst()
+					.orElseThrow(() -> new ResourceNotFoundException(idContact));
+			targetUser.getContacts().remove(contact);
 
-    public void deleteContact(Long idUser, Long idContact, JwtAuthenticationToken token){
+			contactRepository.deleteById(contact.getId());
 
-        var userIdFromToken = extractUserIdFromToken(token);
-        var userRequesting = getUserById(userIdFromToken);
-        var targetUser = getUserById(idUser);
+			userRepository.save(targetUser);
 
-        if(isAuthorized(userRequesting, targetUser)) {
+		} else {
 
-        var contact = targetUser.getContacts().stream().filter(c -> c.getId().equals(idContact))
-                .findFirst().orElseThrow(()-> new ResourceNotFoundException(idContact));
-        targetUser.getContacts().remove(contact);
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied!");
 
-        contactRepository.deleteById(contact.getId());
+		}
 
-        userRepository.save(targetUser);
+	}
 
-       } else {
+	private Long extractUserIdFromToken(JwtAuthenticationToken token) {
+		return Long.parseLong(token.getName());
+	}
 
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied!");
+	private Users getUserById(Long id) {
+		return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+	}
 
-       }
+	private boolean isAuthorized(Users requestingUser, Users targetUser) {
 
-    }
+		boolean isAdmin = requestingUser.getRoles().stream()
+				.anyMatch(role -> role.getName().equalsIgnoreCase(Roles.Values.ADMIN.name()));
 
-    private Long extractUserIdFromToken(JwtAuthenticationToken token) {
-        return Long.parseLong(token.getName());
-    }
+		boolean isOwner = requestingUser.getId().equals(targetUser.getId());
 
-    private Users getUserById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(id));
-    }
+		return isAdmin || isOwner;
+	}
 
-    private boolean isAuthorized(Users requestingUser, Users targetUser) {
-
-        boolean isAdmin = requestingUser.getRoles().stream()
-                .anyMatch(role -> role.getName().equalsIgnoreCase(Roles.Values.ADMIN.name()));
-
-        boolean isOwner = requestingUser.getId().equals(targetUser.getId());
-
-        return isAdmin || isOwner;
-    }
-
-    private List<ContactDTO> convertToContactDTOs(List<Contact> contacts) {
-        return contacts.stream()
-                .map(contact -> new ContactDTO(contact.getId(), contact.getName(), contact.getNumber()))
-                .toList();
-    }
+	private List<ContactDTO> convertToContactDTOs(List<Contact> contacts) {
+		return contacts.stream().map(contact -> new ContactDTO(contact.getId(), contact.getName(), contact.getNumber()))
+				.toList();
+	}
 
 }
-
-

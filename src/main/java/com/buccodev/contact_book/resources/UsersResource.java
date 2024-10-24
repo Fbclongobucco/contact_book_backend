@@ -9,7 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -45,10 +47,14 @@ public class UsersResource {
     public ResponseEntity<String> saveUser(@RequestBody UserDTO userDTO){
 
         var idSalved = userService.createUser(userDTO);
+        
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()  
+                .path("/{id}")          
+                .buildAndExpand(idSalved) 
+                .toUri();
 
-        var resposnse = "new user saved with id: "+idSalved;
-
-        return ResponseEntity.ok(resposnse);
+        return ResponseEntity.created(location).body("user created in resource "+location);
 
     }
 

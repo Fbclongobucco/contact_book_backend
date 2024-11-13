@@ -92,6 +92,15 @@ public class UserService {
 
 			user.setRoles(Set.of(roleAdmin));
 
+			var contacts = userDTO.contacts().stream()
+					.map(contact -> new Contact(null, contact.name(), contact.number()))
+							.peek(contact -> contact.setUsers(user)).
+					toList();
+
+			contactRepository.saveAll(contacts);
+
+			user.getContacts().addAll(contacts);
+
 			return userRepository.save(user).getId();
 
 		} catch (DataIntegrityViolationException | ConstraintViolationException e) {
@@ -201,7 +210,7 @@ public class UserService {
 	}
 
 	@Transactional
-	public ContactDTO createContact(Long id, ContactDTO contactDTO, JwtAuthenticationToken token) {
+	public ContactRequestDTO createContact(Long id, ContactRequestDTO contactDTO, JwtAuthenticationToken token) {
 
 		var userIdFromToken = extractUserIdFromToken(token);
 		var userRequesting = getUserById(userIdFromToken);

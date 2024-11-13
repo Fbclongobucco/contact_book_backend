@@ -2,9 +2,11 @@ package com.buccodev.contact_book.entities;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "tb_contact")
-public class Contact {
+public class Contact implements Serializable {
 
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY)

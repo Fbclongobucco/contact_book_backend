@@ -1,6 +1,7 @@
 package com.buccodev.contact_book.resources;
 
 import com.buccodev.contact_book.dto.ContactDTO;
+import com.buccodev.contact_book.dto.ContactRequestDTO;
 import com.buccodev.contact_book.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class ContactResource {
 
 
     @PostMapping("/{id}/contact")
-    public ResponseEntity<String> createContact(@PathVariable Long id, @RequestBody ContactDTO contactDTO, JwtAuthenticationToken token){
+    public ResponseEntity<String> createContact(@PathVariable Long id, @RequestBody ContactRequestDTO contactDTO, JwtAuthenticationToken token){
 
         var contact = userService.createContact(id, contactDTO, token);
 

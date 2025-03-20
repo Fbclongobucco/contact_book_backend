@@ -1,1 +1,5 @@
-spring.application.name=contact_book
+spring:
+    application:
+        name: contact_book
+    profiles:
+        active: dev

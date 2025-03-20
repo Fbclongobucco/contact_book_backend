@@ -1,12 +1,9 @@
-package com.buccodev.contact_book.application.usecases;
+package com.buccodev.contact_book.application.usecases.user_usecases;
 
 import com.buccodev.contact_book.core.domain.User;
 
-public interface UserUseCases {
+public interface RegisterUser {
 
-    void registerUser(User user);
+    User registerUser(User user);
 
-    User login(String email, String password);
-
-    
 }

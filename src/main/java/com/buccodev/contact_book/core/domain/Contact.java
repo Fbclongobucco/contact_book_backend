@@ -10,6 +10,7 @@ public class Contact {
     private Long id;
     private String name;
     private String numberNumber;
+    private String contactPhoto;
 
 
     private final String PHONE_REGEX = "^\\+?[0-9]{10,15}$";
@@ -19,6 +20,7 @@ public class Contact {
         this.id = id;
         this.name = name;
         this.numberNumber = numberNumber;
+        this.contactPhoto = "https://placehold.co/400";
     }
 
     public Long getId() {
@@ -45,8 +47,15 @@ public class Contact {
         if (numberNumber == null || !PHONE_PATTERN.matcher(numberNumber).matches()) {
             throw new PasswordValidationException("Invalid phone number!");
         }
-
         this.numberNumber = numberNumber;
+    }
+
+    public String getContactPhoto() {
+        return contactPhoto;
+    }
+
+    public void setContactPhoto(String contactPhoto) {
+        this.contactPhoto = contactPhoto;
     }
 
     @Override
@@ -60,4 +69,5 @@ public class Contact {
     public int hashCode() {
         return Objects.hash(id, name, numberNumber);
     }
+
 }

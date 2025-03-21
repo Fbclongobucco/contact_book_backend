@@ -6,4 +6,5 @@ public interface UpdateContact {
 
     void updateContact(Long idContact, Contact contact);
 
+    void updateContactPhoto(Long idContact, String contactPhotoUrl);
 }

@@ -12,7 +12,7 @@ public class User {
     private String name;
     private String email;
     private String password;
-    private Set<Contact> contacts = new HashSet<>();
+    private final Set<Contact> contacts = new HashSet<>();
 
     private  final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
     private  final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);

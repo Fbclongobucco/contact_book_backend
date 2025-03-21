@@ -4,7 +4,7 @@ import com.buccodev.contact_book.core.domain.Contact;
 
 import java.util.List;
 
-public interface GetContacts {
+public interface GetContact {
 
     List<Contact> getAllContactsByUser(Long userId, Integer page, Integer size);
 

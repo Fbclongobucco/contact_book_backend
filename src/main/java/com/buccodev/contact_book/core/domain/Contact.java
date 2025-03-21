@@ -9,7 +9,7 @@ public class Contact {
 
     private Long id;
     private String name;
-    private String numberNumber;
+    private String number;
     private String contactPhoto;
 
 
@@ -19,7 +19,7 @@ public class Contact {
     public Contact(Long id, String name, String numberNumber) {
         this.id = id;
         this.name = name;
-        this.numberNumber = numberNumber;
+        this.number = numberNumber;
         this.contactPhoto = "https://placehold.co/400";
     }
 
@@ -39,15 +39,15 @@ public class Contact {
         this.name = name;
     }
 
-    public String getNumberNumber() {
-        return numberNumber;
+    public String getNumber() {
+        return number;
     }
 
-    public void setNumberNumber(String numberNumber) {
-        if (numberNumber == null || !PHONE_PATTERN.matcher(numberNumber).matches()) {
+    public void setNumber(String number) {
+        if (number == null || !PHONE_PATTERN.matcher(number).matches()) {
             throw new PasswordValidationException("Invalid phone number!");
         }
-        this.numberNumber = numberNumber;
+        this.number = number;
     }
 
     public String getContactPhoto() {
@@ -62,12 +62,12 @@ public class Contact {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Contact contact = (Contact) o;
-        return Objects.equals(id, contact.id) && Objects.equals(name, contact.name) && Objects.equals(numberNumber, contact.numberNumber);
+        return Objects.equals(id, contact.id) && Objects.equals(name, contact.name) && Objects.equals(number, contact.number);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, numberNumber);
+        return Objects.hash(id, name, number);
     }
 
 }

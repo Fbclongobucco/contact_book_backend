@@ -6,4 +6,6 @@ public interface RegisterContact {
 
     Contact registerContact(Long userId, Contact contact);
 
+    Boolean existsContactByNameAndNumber(String name, String number);
+
 }

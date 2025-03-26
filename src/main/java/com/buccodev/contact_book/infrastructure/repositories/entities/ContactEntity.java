@@ -14,12 +14,8 @@ public class ContactEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Name is required!")
-    @Size(min = 3, max = 150, message = "Name must be at least 3 characters and less than 150!")
     private String name;
 
-    @NotBlank(message = "Number is required!")
-    @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Invalid phone number!")
     private String number;
 
     private String contactPhoto;

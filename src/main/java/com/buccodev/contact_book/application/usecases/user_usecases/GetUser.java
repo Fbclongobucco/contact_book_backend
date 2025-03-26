@@ -10,7 +10,7 @@ public interface GetUser {
 
     User getUserByEmail(String email);
 
-    User getUserByName(String name);
+    User getUserByNameAndEmail(String name, String email);
 
     User login(String email, String password);
 

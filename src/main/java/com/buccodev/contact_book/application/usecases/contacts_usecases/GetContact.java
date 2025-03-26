@@ -13,4 +13,6 @@ public interface GetContact {
     Contact getContactByName(String name);
 
     Contact getContactByNumber(String number);
+
+    Boolean existsContactByNameAndNumber(String name, String number);
 }

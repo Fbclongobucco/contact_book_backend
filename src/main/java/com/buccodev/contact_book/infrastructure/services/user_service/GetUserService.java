@@ -25,7 +25,7 @@ public class GetUserService implements GetUser {
     }
 
     @Override
-    public User getUserByName(String name) {
+    public User getUserByNameAndEmail(String name, String email) {
         return null;
     }
 

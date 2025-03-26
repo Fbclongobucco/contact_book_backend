@@ -11,16 +11,18 @@ public class Contact {
     private String name;
     private String number;
     private String contactPhoto;
+    private User user;
 
 
     private final String PHONE_REGEX = "^\\+?[0-9]{10,15}$";
     private final Pattern PHONE_PATTERN = Pattern.compile(PHONE_REGEX);
 
-    public Contact(Long id, String name, String numberNumber) {
+    public Contact(Long id, String name, String numberNumber, User user) {
         this.id = id;
         this.name = name;
-        this.number = numberNumber;
+        this.setNumber(numberNumber);
         this.contactPhoto = "https://placehold.co/400";
+        this.user = user;
     }
 
     public Long getId() {
@@ -56,6 +58,14 @@ public class Contact {
 
     public void setContactPhoto(String contactPhoto) {
         this.contactPhoto = contactPhoto;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override

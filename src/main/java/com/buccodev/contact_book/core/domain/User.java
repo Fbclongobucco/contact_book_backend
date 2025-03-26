@@ -17,8 +17,6 @@ public class User {
     private  final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
     private  final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
-
-
     public User(Long id, String name, String email, String password) {
         this.id = id;
         this.name = name;

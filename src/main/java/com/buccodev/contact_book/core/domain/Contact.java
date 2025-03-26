@@ -17,7 +17,7 @@ public class Contact {
     private final String PHONE_REGEX = "^\\+?[0-9]{10,15}$";
     private final Pattern PHONE_PATTERN = Pattern.compile(PHONE_REGEX);
 
-    public Contact(Long id, String name, String numberNumber, User user) {
+    public Contact(Long id, String name, String numberNumber,  User user) {
         this.id = id;
         this.name = name;
         this.setNumber(numberNumber);

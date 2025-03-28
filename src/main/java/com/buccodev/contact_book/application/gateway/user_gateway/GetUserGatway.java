@@ -4,11 +4,10 @@ import com.buccodev.contact_book.application.gateway.exception.UserCredendialsEx
 import com.buccodev.contact_book.application.gateway.exception.UserNotFoundException;
 import com.buccodev.contact_book.application.usecases.user_usecases.GetUser;
 import com.buccodev.contact_book.application.utils.dtos.user_dtos.UserResponseDto;
-import com.buccodev.contact_book.application.utils.mappers.UserMapper;
+import com.buccodev.contact_book.application.utils.mappers.UserGatewayMapper;
 import com.buccodev.contact_book.core.domain.User;
 
 import java.util.List;
-import java.util.Set;
 
 public class GetUserGatway {
 
@@ -26,7 +25,7 @@ public class GetUserGatway {
             throw new UserNotFoundException("User not found");
         }
 
-       return  UserMapper.fromUserToResponseDto(userSalved);
+       return  UserGatewayMapper.fromUserToResponseDto(userSalved);
     }
 
     public UserResponseDto getUserByEmail(String email) {
@@ -35,7 +34,7 @@ public class GetUserGatway {
         if(userSalved == null) {
             throw new UserNotFoundException("User not found");
         }
-        return UserMapper.fromUserToResponseDto(userSalved);
+        return UserGatewayMapper.fromUserToResponseDto(userSalved);
     }
 
     public UserResponseDto getUserByName(String name, String email) {
@@ -44,7 +43,7 @@ public class GetUserGatway {
         if(userSalved == null) {
             throw new UserNotFoundException("User not found");
         }
-        return UserMapper.fromUserToResponseDto(userSalved);
+        return UserGatewayMapper.fromUserToResponseDto(userSalved);
     }
 
     public UserResponseDto login(String email, String password) {
@@ -53,12 +52,12 @@ public class GetUserGatway {
         if(userSalved == null) {
             throw new UserCredendialsException("Invalid credendials");
         }
-        return UserMapper.fromUserToResponseDto(userSalved);
+        return UserGatewayMapper.fromUserToResponseDto(userSalved);
     }
 
     public List<UserResponseDto> getAllUsers(Integer page, Integer size) {
         List<User> users = getUser.getAllUsers(page, size);
 
-        return users.stream().map(UserMapper::fromUserToResponseDto).toList();
+        return users.stream().map(UserGatewayMapper::fromUserToResponseDto).toList();
     }
 }

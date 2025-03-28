@@ -5,8 +5,7 @@ import com.buccodev.contact_book.application.gateway.exception.UserNotFoundExcep
 import com.buccodev.contact_book.application.usecases.contacts_usecases.GetContact;
 import com.buccodev.contact_book.application.usecases.user_usecases.GetUser;
 import com.buccodev.contact_book.application.utils.dtos.contact_dto.ContactResponseDto;
-import com.buccodev.contact_book.application.utils.mappers.ContactMapper;
-import com.buccodev.contact_book.core.domain.Contact;
+import com.buccodev.contact_book.application.utils.mappers.ContactGatewayMapper;
 
 import java.util.List;
 
@@ -28,7 +27,7 @@ public class GetContactGateway {
         }
         var contacts = getContact.getAllContactsByUser(userId, page, size);
 
-        return contacts.stream().map(ContactMapper::fromContactToContactResponseDto).toList();
+        return contacts.stream().map(ContactGatewayMapper::fromContactToContactResponseDto).toList();
     }
 
     public ContactResponseDto getContactById(Long id) {
@@ -37,7 +36,7 @@ public class GetContactGateway {
         if (contact == null) {
             throw new ContactNotFoundException("Contact not found");
         }
-        return ContactMapper.fromContactToContactResponseDto(contact);
+        return ContactGatewayMapper.fromContactToContactResponseDto(contact);
     }
 
     public ContactResponseDto getContactByName(String name) {
@@ -48,7 +47,7 @@ public class GetContactGateway {
             throw new ContactNotFoundException("Contact not found");
         }
 
-        return ContactMapper.fromContactToContactResponseDto(contact);
+        return ContactGatewayMapper.fromContactToContactResponseDto(contact);
     }
 
     public ContactResponseDto getContactByNumber(String number) {
@@ -59,6 +58,6 @@ public class GetContactGateway {
             throw new ContactNotFoundException("Contact not found");
         }
 
-        return ContactMapper.fromContactToContactResponseDto(contact);
+        return ContactGatewayMapper.fromContactToContactResponseDto(contact);
     }
 }

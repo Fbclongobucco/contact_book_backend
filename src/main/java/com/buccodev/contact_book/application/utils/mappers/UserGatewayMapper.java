@@ -4,9 +4,9 @@ import com.buccodev.contact_book.application.utils.dtos.user_dtos.UserRequestDto
 import com.buccodev.contact_book.application.utils.dtos.user_dtos.UserResponseDto;
 import com.buccodev.contact_book.core.domain.User;
 
-public class UserMapper {
+public class UserGatewayMapper {
 
-    public static User fromRequestDtoToUser(UserRequestDto userRequestDto) {
+    public static User fromUserRequestDtoToUser(UserRequestDto userRequestDto) {
         return new User(
                 null,
                 userRequestDto.name(),

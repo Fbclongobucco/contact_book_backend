@@ -4,7 +4,7 @@ import com.buccodev.contact_book.application.gateway.exception.ContactDuplicateE
 import com.buccodev.contact_book.application.usecases.contacts_usecases.GetContact;
 import com.buccodev.contact_book.application.usecases.contacts_usecases.RegisterContact;
 import com.buccodev.contact_book.application.utils.dtos.contact_dto.ContactRequestDto;
-import com.buccodev.contact_book.application.utils.mappers.ContactMapper;
+import com.buccodev.contact_book.application.utils.mappers.ContactGatewayMapper;
 import com.buccodev.contact_book.core.domain.Contact;
 
 public class RegisterContactGateway {
@@ -23,7 +23,7 @@ public class RegisterContactGateway {
             throw new ContactDuplicateException("Contact already exists");
         }
 
-        var contact = ContactMapper.contactDtoToContact(contactRequestDto);
+        var contact = ContactGatewayMapper.fromContactRequestDtoToContact(contactRequestDto);
 
         return registerContact.registerContact(userId, contact);
     }

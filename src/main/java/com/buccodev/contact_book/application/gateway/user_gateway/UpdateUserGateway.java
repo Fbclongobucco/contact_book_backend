@@ -4,7 +4,7 @@ import com.buccodev.contact_book.application.gateway.exception.UserNotFoundExcep
 import com.buccodev.contact_book.application.usecases.user_usecases.GetUser;
 import com.buccodev.contact_book.application.usecases.user_usecases.UpdateUser;
 import com.buccodev.contact_book.application.utils.dtos.user_dtos.UserRequestDto;
-import com.buccodev.contact_book.application.utils.mappers.UserMapper;
+import com.buccodev.contact_book.application.utils.mappers.UserGatewayMapper;
 import com.buccodev.contact_book.core.domain.User;
 
 public class UpdateUserGateway {
@@ -25,7 +25,7 @@ public class UpdateUserGateway {
             throw new UserNotFoundException("User not found");
         }
 
-        User user = UserMapper.fromRequestDtoToUser(userRequestDto);
+        User user = UserGatewayMapper.fromUserRequestDtoToUser(userRequestDto);
 
         updateUser.updateUser(id, user);
     }

@@ -4,9 +4,7 @@ import com.buccodev.contact_book.application.gateway.exception.ContactNotFoundEx
 import com.buccodev.contact_book.application.usecases.contacts_usecases.GetContact;
 import com.buccodev.contact_book.application.usecases.contacts_usecases.UpdateContact;
 import com.buccodev.contact_book.application.utils.dtos.contact_dto.ContactRequestDto;
-import com.buccodev.contact_book.application.utils.dtos.contact_dto.ContactResponseDto;
-import com.buccodev.contact_book.application.utils.mappers.ContactMapper;
-import com.buccodev.contact_book.core.domain.Contact;
+import com.buccodev.contact_book.application.utils.mappers.ContactGatewayMapper;
 
 public class UpdateContactGateway {
 
@@ -26,7 +24,7 @@ public class UpdateContactGateway {
             throw new ContactNotFoundException("Contact not found");
         }
 
-        contact = ContactMapper.contactDtoToContact(contactRequestDto);
+        contact = ContactGatewayMapper.fromContactRequestDtoToContact(contactRequestDto);
 
         updateContact.updateContact(idContact, contact);
     }

@@ -4,7 +4,7 @@ import com.buccodev.contact_book.application.gateway.exception.UserDuplicateExce
 import com.buccodev.contact_book.application.usecases.user_usecases.GetUser;
 import com.buccodev.contact_book.application.usecases.user_usecases.RegisterUser;
 import com.buccodev.contact_book.application.utils.dtos.user_dtos.UserRequestDto;
-import com.buccodev.contact_book.application.utils.mappers.UserMapper;
+import com.buccodev.contact_book.application.utils.mappers.UserGatewayMapper;
 import com.buccodev.contact_book.core.domain.User;
 
 public class RegisterUserGateway {
@@ -19,7 +19,7 @@ public class RegisterUserGateway {
 
     public User registerUser(UserRequestDto userRequestDto) {
 
-        User user = UserMapper.fromRequestDtoToUser(userRequestDto);
+        User user = UserGatewayMapper.fromUserRequestDtoToUser(userRequestDto);
 
         User registeredUser = getUser.getUserByNameAndEmail(user.getName(), user.getEmail());
 

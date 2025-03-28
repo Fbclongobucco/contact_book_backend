@@ -4,9 +4,9 @@ import com.buccodev.contact_book.application.utils.dtos.contact_dto.ContactReque
 import com.buccodev.contact_book.application.utils.dtos.contact_dto.ContactResponseDto;
 import com.buccodev.contact_book.core.domain.Contact;
 
-public class ContactMapper {
+public class ContactGatewayMapper {
 
-    public static Contact contactDtoToContact(ContactRequestDto contactRequestDto) {
+    public static Contact fromContactRequestDtoToContact(ContactRequestDto contactRequestDto) {
         var contact = new Contact(null, contactRequestDto.name(), contactRequestDto.number(), null);
         contact.setContactPhoto(contact.getContactPhoto());
         return contact;

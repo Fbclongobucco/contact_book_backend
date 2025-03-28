@@ -3,5 +3,18 @@ package com.buccodev.contact_book.infrastructure.repositories.entities_resposito
 import com.buccodev.contact_book.infrastructure.repositories.entities.ContactEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+import java.util.Optional;
+
 public interface ContactEntityRepository extends JpaRepository<ContactEntity, Long> {
+
+    List<ContactEntity> findAllByUserId(Long userId);
+
+    Optional<ContactEntity> findByName(String name);
+
+    Optional<ContactEntity> findByNumber(String number);
+
+    boolean existsByNameAndNumber(String number, String name);
+
+
 }

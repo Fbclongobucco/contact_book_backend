@@ -26,7 +26,7 @@ public class UserEntity {
 
     private String password;
 
-    @OneToMany(mappedBy = "userEntity")
+    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private final Set<ContactEntity> contacts = new HashSet<>();
 
     public UserEntity(User user){

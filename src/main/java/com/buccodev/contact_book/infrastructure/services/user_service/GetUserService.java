@@ -2,7 +2,15 @@ package com.buccodev.contact_book.infrastructure.services.user_service;
 
 import com.buccodev.contact_book.application.usecases.user_usecases.GetUser;
 import com.buccodev.contact_book.core.domain.User;
+import com.buccodev.contact_book.infrastructure.repositories.entities.UserEntity;
 import com.buccodev.contact_book.infrastructure.repositories.entities_respository.UserEntityRepository;
+import com.buccodev.contact_book.infrastructure.services.exceptions.CredentialsInvalidException;
+import com.buccodev.contact_book.infrastructure.services.exceptions.InvalidQueryParametersException;
+import com.buccodev.contact_book.infrastructure.services.exceptions.ResourceNotFoundException;
+import com.buccodev.contact_book.infrastructure.services.utils.UserServiceMapper;
+import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 
@@ -14,28 +22,51 @@ public class GetUserService implements GetUser {
         this.repository = repository;
     }
 
+
     @Override
     public User getUserById(Long id) {
-        return null;
+
+        var userEntity = repository.findById(id).orElseThrow(()-> new ResourceNotFoundException("User not found"));
+
+        return UserServiceMapper.fromUserEntityToUser(userEntity);
     }
+
 
     @Override
     public User getUserByEmail(String email) {
-        return null;
+
+        var userEntity = repository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException("User not found"));
+
+        return UserServiceMapper.fromUserEntityToUser(userEntity);
     }
 
     @Override
     public User getUserByNameAndEmail(String name, String email) {
-        return null;
+        var userEntity = repository.findByNameAndEmail(name, email).orElseThrow(()-> new ResourceNotFoundException("User not found"));
+        return UserServiceMapper.fromUserEntityToUser(userEntity);
     }
 
     @Override
     public User login(String email, String password) {
-        return null;
+
+        var userEntity = repository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException("User not found"));
+
+        if(!userEntity.getPassword().equals(password)) {
+            throw new CredentialsInvalidException("Invalid credendials");
+        }
+        return UserServiceMapper.fromUserEntityToUser(userEntity);
     }
 
     @Override
     public List<User> getAllUsers(Integer page, Integer size) {
-        return List.of();
+
+        if(page < 0 || size < 0) {
+            throw new InvalidQueryParametersException("Invalid query parameters");
+        }
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<UserEntity> userEntities = repository.findAll(pageRequest);
+
+       return userEntities.getContent().stream().map(UserServiceMapper::fromUserEntityToUser).toList();
     }
 }

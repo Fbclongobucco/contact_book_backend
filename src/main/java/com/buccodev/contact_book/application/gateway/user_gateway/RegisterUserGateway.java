@@ -4,6 +4,7 @@ import com.buccodev.contact_book.application.gateway.exception.UserDuplicateExce
 import com.buccodev.contact_book.application.usecases.user_usecases.GetUser;
 import com.buccodev.contact_book.application.usecases.user_usecases.RegisterUser;
 import com.buccodev.contact_book.application.utils.dtos.user_dtos.UserRequestDto;
+import com.buccodev.contact_book.application.utils.dtos.user_dtos.UserResponseDto;
 import com.buccodev.contact_book.application.utils.mappers.UserGatewayMapper;
 import com.buccodev.contact_book.core.domain.User;
 
@@ -17,7 +18,7 @@ public class RegisterUserGateway {
         this.getUser = getUser;
     }
 
-    public User registerUser(UserRequestDto userRequestDto) {
+    public UserResponseDto registerUser(UserRequestDto userRequestDto) {
 
         User user = UserGatewayMapper.fromUserRequestDtoToUser(userRequestDto);
 
@@ -27,7 +28,9 @@ public class RegisterUserGateway {
            throw new UserDuplicateException("User already exists");
         }
 
-        return registerUser.registerUser(user);
+        User userSaved = registerUser.registerUser(user);
+
+        return UserGatewayMapper.fromUserToResponseDto(userSaved);
     }
 
 }

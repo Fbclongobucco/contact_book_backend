@@ -7,10 +7,11 @@ import com.buccodev.contact_book.infrastructure.repositories.entities_respositor
 import com.buccodev.contact_book.infrastructure.repositories.entities_respository.UserEntityRepository;
 import com.buccodev.contact_book.infrastructure.services.exceptions.ResourceNotFoundException;
 import com.buccodev.contact_book.infrastructure.services.utils.ContactServiceMapper;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
+@Service
 public class GetContactService implements GetContact {
 
     private final ContactEntityRepository  contactRepository;
@@ -28,7 +29,7 @@ public class GetContactService implements GetContact {
         if(!userRepository.existsById(userId)) {
             throw new ResourceNotFoundException("User not found");
         }
-        var contacts = contactRepository.findAllByUserId(userId);
+        var contacts = contactRepository.findAllByUserEntity_Id(userId);
 
         return contacts.stream().map(ContactServiceMapper::fromContactEntityToContact).toList();
 

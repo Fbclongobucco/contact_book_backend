@@ -4,7 +4,9 @@ import com.buccodev.contact_book.application.usecases.contacts_usecases.DeleteCo
 import com.buccodev.contact_book.infrastructure.repositories.entities_respository.ContactEntityRepository;
 import com.buccodev.contact_book.infrastructure.services.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
 
+@Service
 public class DeleteContactService implements DeleteContact {
 
     private final ContactEntityRepository contactRepository;

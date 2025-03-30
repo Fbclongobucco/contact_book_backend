@@ -15,6 +15,5 @@ public record UserRequestDto(
                              String email,
                              @NotBlank(message = "Password is required!")
                              @Size(min = 6, message = "Password must be at least 6 characters!")
-                             String password,
-                             Set<ContactRequestDto> contactDtos) {
+                             String password) {
 }

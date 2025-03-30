@@ -6,7 +6,9 @@ import com.buccodev.contact_book.infrastructure.repositories.entities_respositor
 import com.buccodev.contact_book.infrastructure.services.exceptions.ResourceNotFoundException;
 import com.buccodev.contact_book.infrastructure.services.utils.UserServiceMapper;
 import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
 
+@Service
 public class UpdateUserService implements UpdateUser {
 
     private final UserEntityRepository repository;

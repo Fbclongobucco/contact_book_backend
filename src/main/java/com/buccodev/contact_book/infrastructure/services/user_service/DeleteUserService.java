@@ -3,7 +3,9 @@ package com.buccodev.contact_book.infrastructure.services.user_service;
 import com.buccodev.contact_book.application.usecases.user_usecases.DeleteUser;
 import com.buccodev.contact_book.infrastructure.repositories.entities_respository.UserEntityRepository;
 import com.buccodev.contact_book.infrastructure.services.exceptions.ResourceNotFoundException;
+import org.springframework.stereotype.Service;
 
+@Service
 public class DeleteUserService implements DeleteUser {
 
     private final UserEntityRepository repository;

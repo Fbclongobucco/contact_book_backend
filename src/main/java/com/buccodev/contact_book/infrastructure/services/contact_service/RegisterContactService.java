@@ -8,7 +8,10 @@ import com.buccodev.contact_book.infrastructure.repositories.entities_respositor
 import com.buccodev.contact_book.infrastructure.services.exceptions.ResourceNotFoundException;
 import com.buccodev.contact_book.infrastructure.services.utils.ContactServiceMapper;
 import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
 
+
+@Service
 public class RegisterContactService implements RegisterContact {
 
     private final ContactEntityRepository contactRepository;

@@ -11,9 +11,11 @@ import com.buccodev.contact_book.infrastructure.services.utils.UserServiceMapper
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class GetUserService implements GetUser {
 
     private final UserEntityRepository repository;
@@ -41,9 +43,8 @@ public class GetUserService implements GetUser {
     }
 
     @Override
-    public User getUserByNameAndEmail(String name, String email) {
-        var userEntity = repository.findByNameAndEmail(name, email).orElseThrow(()-> new ResourceNotFoundException("User not found"));
-        return UserServiceMapper.fromUserEntityToUser(userEntity);
+    public boolean getUserByNameAndEmail(String name, String email) {
+        return repository.existsByNameAndEmail(name, email);
     }
 
     @Override

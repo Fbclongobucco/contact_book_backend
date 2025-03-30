@@ -5,7 +5,9 @@ import com.buccodev.contact_book.core.domain.User;
 import com.buccodev.contact_book.infrastructure.repositories.entities.UserEntity;
 import com.buccodev.contact_book.infrastructure.repositories.entities_respository.UserEntityRepository;
 import com.buccodev.contact_book.infrastructure.services.utils.UserServiceMapper;
+import org.springframework.stereotype.Service;
 
+@Service
 public class RegisterUserService implements RegisterUser {
 
     private final UserEntityRepository repository;

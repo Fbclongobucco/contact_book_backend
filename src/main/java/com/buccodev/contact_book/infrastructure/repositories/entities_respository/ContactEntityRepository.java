@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface ContactEntityRepository extends JpaRepository<ContactEntity, Long> {
 
-    List<ContactEntity> findAllByUserId(Long userId);
+    List<ContactEntity> findAllByUserEntity_Id(Long userId);
 
     Optional<ContactEntity> findByName(String name);
 

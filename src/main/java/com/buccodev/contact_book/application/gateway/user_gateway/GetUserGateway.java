@@ -9,11 +9,11 @@ import com.buccodev.contact_book.core.domain.User;
 
 import java.util.List;
 
-public class GetUserGatway {
+public class GetUserGateway {
 
     private final GetUser getUser;
 
-    public GetUserGatway(GetUser getUser) {
+    public GetUserGateway(GetUser getUser) {
         this.getUser = getUser;
     }
 
@@ -37,14 +37,6 @@ public class GetUserGatway {
         return UserGatewayMapper.fromUserToResponseDto(userSalved);
     }
 
-    public UserResponseDto getUserByName(String name, String email) {
-        var userSalved = getUser.getUserByNameAndEmail(name, email);
-
-        if(userSalved == null) {
-            throw new UserNotFoundException("User not found");
-        }
-        return UserGatewayMapper.fromUserToResponseDto(userSalved);
-    }
 
     public UserResponseDto login(String email, String password) {
         var userSalved =  getUser.login(email, password);

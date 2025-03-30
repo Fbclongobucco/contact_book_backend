@@ -22,13 +22,13 @@ public class RegisterUserGateway {
 
         User user = UserGatewayMapper.fromUserRequestDtoToUser(userRequestDto);
 
-        User registeredUser = getUser.getUserByNameAndEmail(user.getName(), user.getEmail());
 
-        if (registeredUser != null) {
+
+        if (getUser.getUserByNameAndEmail(user.getName(), user.getEmail())) {
            throw new UserDuplicateException("User already exists");
         }
 
-        User userSaved = registerUser.registerUser(user);
+        var userSaved = registerUser.registerUser(user);
 
         return UserGatewayMapper.fromUserToResponseDto(userSaved);
     }

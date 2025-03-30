@@ -5,7 +5,9 @@ import com.buccodev.contact_book.core.domain.Contact;
 import com.buccodev.contact_book.infrastructure.repositories.entities_respository.ContactEntityRepository;
 import com.buccodev.contact_book.infrastructure.services.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
 
+@Service
 public class UpdateContactService implements UpdateContact {
 
     private final ContactEntityRepository contactRepository;

@@ -1,6 +1,7 @@
 package com.buccodev.contact_book.infrastructure.services.user_service;
 
 import com.buccodev.contact_book.application.usecases.user_usecases.GetUser;
+import com.buccodev.contact_book.application.utils.dtos.user_dtos.UserLoginDto;
 import com.buccodev.contact_book.core.domain.User;
 import com.buccodev.contact_book.infrastructure.repositories.entities.UserEntity;
 import com.buccodev.contact_book.infrastructure.repositories.entities_respository.UserEntityRepository;
@@ -42,10 +43,6 @@ public class GetUserService implements GetUser {
         return UserServiceMapper.fromUserEntityToUser(userEntity);
     }
 
-    @Override
-    public boolean getUserByNameAndEmail(String name, String email) {
-        return repository.existsByNameAndEmail(name, email);
-    }
 
     @Override
     public User login(String email, String password) {

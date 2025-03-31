@@ -2,6 +2,7 @@ package com.buccodev.contact_book.infrastructure.services.user_service;
 
 import com.buccodev.contact_book.application.usecases.user_usecases.UpdateUser;
 import com.buccodev.contact_book.core.domain.User;
+import com.buccodev.contact_book.infrastructure.repositories.entities.UserEntity;
 import com.buccodev.contact_book.infrastructure.repositories.entities_respository.UserEntityRepository;
 import com.buccodev.contact_book.infrastructure.services.exceptions.ResourceNotFoundException;
 import com.buccodev.contact_book.infrastructure.services.utils.UserServiceMapper;
@@ -39,8 +40,10 @@ public class UpdateUserService implements UpdateUser {
 
         var user = UserServiceMapper.fromUserEntityToUser(userEntity);
 
-        userEntity.setPassword(user.getPassword());
+        user.setPassword(password);
 
-        repository.save(userEntity);
+        var entityUpdated = new UserEntity(user);
+
+        repository.save(entityUpdated);
     }
 }

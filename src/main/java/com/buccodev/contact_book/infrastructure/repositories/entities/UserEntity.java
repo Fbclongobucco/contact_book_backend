@@ -19,8 +19,10 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String name;
 
+    @Column(unique = true, nullable = false)
     private String email;
 
 
@@ -35,6 +37,8 @@ public class UserEntity {
         this.email = user.getEmail();
         this.password = user.getPassword();
     }
+
+    public UserEntity(){}
 
     public Long getId() {
         return id;

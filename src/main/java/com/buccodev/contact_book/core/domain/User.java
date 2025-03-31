@@ -64,16 +64,8 @@ public class User {
         this.password = password;
     }
 
-    public Boolean verifyPassword(String password) {
-        return this.password.equals(password);
-    }
-
     public Set<Contact> getContacts() {
         return contacts;
-    }
-
-    public void addContacts(Contact contact) {
-        this.contacts.add(contact);
     }
 
     @Override

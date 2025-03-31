@@ -3,9 +3,9 @@ package com.buccodev.contact_book.application.gateway.user_gateway;
 import com.buccodev.contact_book.application.gateway.exception.UserNotFoundException;
 import com.buccodev.contact_book.application.usecases.user_usecases.GetUser;
 import com.buccodev.contact_book.application.usecases.user_usecases.UpdateUser;
-import com.buccodev.contact_book.application.utils.dtos.user_dtos.UserRequestDto;
-import com.buccodev.contact_book.application.utils.mappers.UserGatewayMapper;
-import com.buccodev.contact_book.core.domain.User;
+import com.buccodev.contact_book.application.utils.dtos.user_dtos.UpdatePasswordDto;
+import com.buccodev.contact_book.application.utils.dtos.user_dtos.UserUpdateDto;
+
 
 public class UpdateUserGateway {
 
@@ -17,7 +17,7 @@ public class UpdateUserGateway {
         this.getUser = getUser;
     }
 
-    public void updateUser(Long id, UserRequestDto userRequestDto) {
+    public void updateUser(Long id, UserUpdateDto userUpdateDto) {
 
         var userSalved = getUser.getUserById(id);
 
@@ -25,12 +25,18 @@ public class UpdateUserGateway {
             throw new UserNotFoundException("User not found");
         }
 
-        User user = UserGatewayMapper.fromUserRequestDtoToUser(userRequestDto);
+        if(userUpdateDto.name() != null) {
+            userSalved.setName(userUpdateDto.name());
+        }
 
-        updateUser.updateUser(id, user);
+        if(userUpdateDto.email() != null) {
+            userSalved.setEmail(userUpdateDto.email());
+        }
+
+        updateUser.updateUser(id, userSalved);
     }
 
-    public void updatePassword(Long id, String password) {
+    public void updatePassword(Long id, UpdatePasswordDto updatePasswordDto) {
 
         var userSalved = getUser.getUserById(id);
 
@@ -38,6 +44,6 @@ public class UpdateUserGateway {
             throw new UserNotFoundException("User not found");
         }
 
-        updateUser.updatePassword(id, password);
+        updateUser.updatePassword(id, updatePasswordDto.newPassword());
     }
 }

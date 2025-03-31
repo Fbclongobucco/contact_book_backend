@@ -15,8 +15,8 @@ import org.springframework.context.annotation.Configuration;
 public class UserBeans {
 
     @Bean
-    RegisterUserGateway registerUserGateway(RegisterUser registerUser, GetUser getUser) {
-        return new RegisterUserGateway(registerUser, getUser);
+    RegisterUserGateway registerUserGateway(RegisterUser registerUser) {
+        return new RegisterUserGateway(registerUser);
     }
 
     @Bean

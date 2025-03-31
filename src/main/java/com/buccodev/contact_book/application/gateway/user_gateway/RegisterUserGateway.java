@@ -11,22 +11,14 @@ import com.buccodev.contact_book.core.domain.User;
 public class RegisterUserGateway {
 
     private final RegisterUser registerUser;
-    private final GetUser getUser;
 
-    public RegisterUserGateway(RegisterUser registerUser, GetUser getUser) {
+    public RegisterUserGateway(RegisterUser registerUser) {
         this.registerUser = registerUser;
-        this.getUser = getUser;
     }
 
     public UserResponseDto registerUser(UserRequestDto userRequestDto) {
 
         User user = UserGatewayMapper.fromUserRequestDtoToUser(userRequestDto);
-
-
-
-        if (getUser.getUserByNameAndEmail(user.getName(), user.getEmail())) {
-           throw new UserDuplicateException("User already exists");
-        }
 
         var userSaved = registerUser.registerUser(user);
 

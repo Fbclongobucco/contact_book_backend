@@ -10,11 +10,8 @@ public interface GetUser {
 
     User getUserByEmail(String email);
 
-    boolean getUserByNameAndEmail(String name, String email);
-
     User login(String email, String password);
 
     List<User> getAllUsers(Integer page, Integer size);
-
 
 }

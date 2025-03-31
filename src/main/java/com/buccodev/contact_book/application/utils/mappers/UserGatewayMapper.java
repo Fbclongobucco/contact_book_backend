@@ -2,6 +2,7 @@ package com.buccodev.contact_book.application.utils.mappers;
 
 import com.buccodev.contact_book.application.utils.dtos.user_dtos.UserRequestDto;
 import com.buccodev.contact_book.application.utils.dtos.user_dtos.UserResponseDto;
+import com.buccodev.contact_book.application.utils.dtos.user_dtos.UserUpdateDto;
 import com.buccodev.contact_book.core.domain.User;
 
 public class UserGatewayMapper {

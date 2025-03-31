@@ -4,6 +4,7 @@ import com.buccodev.contact_book.application.usecases.user_usecases.RegisterUser
 import com.buccodev.contact_book.core.domain.User;
 import com.buccodev.contact_book.infrastructure.repositories.entities.UserEntity;
 import com.buccodev.contact_book.infrastructure.repositories.entities_respository.UserEntityRepository;
+import com.buccodev.contact_book.infrastructure.services.exceptions.UserAlreadyExistsException;
 import com.buccodev.contact_book.infrastructure.services.utils.UserServiceMapper;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,9 @@ public class RegisterUserService implements RegisterUser {
     @Override
     public User registerUser(User user) {
 
+        if(repository.existsByEmail(user.getEmail()) || repository.existsByName(user.getName())) {
+        throw new UserAlreadyExistsException("User already exists by email or name");
+        }
         var userEntity = new UserEntity(user);
         var userSaved = repository.save(userEntity);
 

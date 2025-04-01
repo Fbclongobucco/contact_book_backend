@@ -29,6 +29,6 @@ A secure contact management system built with Spring Boot, Spring Security, and 
 - RESTful API design
 
 ## Architecture 🏗️
--clear arch
--pattern DTOs
+- clear arch
+- pattern DTOs
 

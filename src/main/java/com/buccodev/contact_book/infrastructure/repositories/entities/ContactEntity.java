@@ -32,6 +32,8 @@ public class ContactEntity {
         this.userEntity = new UserEntity(contact.getUser());
     }
 
+    public ContactEntity(){}
+
     public Long getId() {
         return id;
     }

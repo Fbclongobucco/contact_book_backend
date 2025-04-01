@@ -16,9 +16,6 @@ public class UserServiceMapper {
                 userEntity.getName(),
                 userEntity.getEmail(),
                 userEntity.getPassword());
-         Set<ContactEntity> contactsEntity = userEntity.getContacts();
-         Set<Contact> contacts = contactsEntity.stream().map(ContactServiceMapper::fromContactEntityToContact).collect(Collectors.toSet());
-         user.getContacts().addAll(contacts);
          return user;
 
     }

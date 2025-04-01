@@ -7,6 +7,7 @@ import com.buccodev.contact_book.infrastructure.repositories.entities_respositor
 import com.buccodev.contact_book.infrastructure.repositories.entities_respository.UserEntityRepository;
 import com.buccodev.contact_book.infrastructure.services.exceptions.ResourceNotFoundException;
 import com.buccodev.contact_book.infrastructure.services.utils.ContactServiceMapper;
+import com.buccodev.contact_book.infrastructure.services.utils.UserServiceMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -25,12 +26,12 @@ public class RegisterContactService implements RegisterContact {
     @Transactional
     @Override
     public Contact registerContact(Long userId, Contact contact) {
-        var user = userRepository.findById(userId).orElseThrow(()-> new ResourceNotFoundException("User not found"));
-
+        var userEntity = userRepository.findById(userId).orElseThrow(()-> new ResourceNotFoundException("User not found"));
+        var user = UserServiceMapper.fromUserEntityToUser(userEntity);
+        contact.setUser(user);
+        user.getContacts().add(contact);
         var contactEntity = new ContactEntity(contact);
-        contactEntity.setUserEntity(user);
         var contactSaved = contactRepository.save(contactEntity);
-
         return ContactServiceMapper.fromContactEntityToContact(contactSaved);
     }
 }

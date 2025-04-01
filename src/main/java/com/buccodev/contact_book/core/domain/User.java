@@ -14,8 +14,6 @@ public class User {
     private String password;
     private final Set<Contact> contacts = new HashSet<>();
 
-    private  final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
-    private  final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
     public User(Long id, String name, String email, String password) {
         this.id = id;
@@ -45,10 +43,15 @@ public class User {
     }
 
     public void setEmail(String email) {
-
-        if (email == null || !EMAIL_PATTERN.matcher(email).matches()) {
-            throw new EmailValidationException("invalid email!");
+        if (email == null || email.isEmpty()) {
+            throw new EmailValidationException("Email cannot be empty or null!");
         }
+
+        String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+        if (!email.matches(emailRegex)) {
+            throw new EmailValidationException("Invalid email format!");
+        }
+
         this.email = email;
     }
 
@@ -57,9 +60,8 @@ public class User {
     }
 
     public void setPassword(String password) {
-
-        if(password == null || password.length() < 6){
-            throw new PasswordValidationException("Password cannot be empty or have less than 6 digits!");
+        if (password == null || password.length() < 6) {
+            throw new PasswordValidationException("Password must have at least 6 characters!");
         }
         this.password = password;
     }
@@ -70,6 +72,7 @@ public class User {
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
         return Objects.equals(id, user.id);

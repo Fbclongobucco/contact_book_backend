@@ -1,7 +1,6 @@
 package com.buccodev.contact_book.infrastructure.services.user_service;
 
 import com.buccodev.contact_book.application.usecases.user_usecases.GetUser;
-import com.buccodev.contact_book.application.utils.dtos.user_dtos.UserLoginDto;
 import com.buccodev.contact_book.core.domain.User;
 import com.buccodev.contact_book.infrastructure.repositories.entities.UserEntity;
 import com.buccodev.contact_book.infrastructure.repositories.entities_respository.UserEntityRepository;
@@ -9,7 +8,6 @@ import com.buccodev.contact_book.infrastructure.services.exceptions.CredentialsI
 import com.buccodev.contact_book.infrastructure.services.exceptions.InvalidQueryParametersException;
 import com.buccodev.contact_book.infrastructure.services.exceptions.ResourceNotFoundException;
 import com.buccodev.contact_book.infrastructure.services.utils.UserServiceMapper;
-import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;

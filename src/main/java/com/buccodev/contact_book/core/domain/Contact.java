@@ -1,5 +1,6 @@
 package com.buccodev.contact_book.core.domain;
 
+import com.buccodev.contact_book.core.exceptions.NumberValidationException;
 import com.buccodev.contact_book.core.exceptions.PasswordValidationException;
 
 import java.util.Objects;
@@ -47,7 +48,7 @@ public class Contact {
 
     public void setNumber(String number) {
         if (number == null || !PHONE_PATTERN.matcher(number).matches()) {
-            throw new PasswordValidationException("Invalid phone number!");
+            throw new NumberValidationException("Invalid phone number!");
         }
         this.number = number;
     }

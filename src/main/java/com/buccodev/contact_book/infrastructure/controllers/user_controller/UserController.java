@@ -17,7 +17,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("contact-book/api/user")
+@RequestMapping("/contact-book/api/user")
 public class UserController {
 
     private final RegisterUserGateway  getUserGateway;

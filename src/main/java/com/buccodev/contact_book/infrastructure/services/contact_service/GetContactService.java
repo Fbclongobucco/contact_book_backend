@@ -7,6 +7,8 @@ import com.buccodev.contact_book.infrastructure.repositories.entities_respositor
 import com.buccodev.contact_book.infrastructure.repositories.entities_respository.UserEntityRepository;
 import com.buccodev.contact_book.infrastructure.services.exceptions.ResourceNotFoundException;
 import com.buccodev.contact_book.infrastructure.services.utils.ContactServiceMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,8 +31,8 @@ public class GetContactService implements GetContact {
         if(!userRepository.existsById(userId)) {
             throw new ResourceNotFoundException("User not found");
         }
-        var contacts = contactRepository.findAllByUserEntity_Id(userId);
-
+        var pageable = PageRequest.of(page, size);
+        var contacts = contactRepository.findAllByUserEntity_Id(userId, pageable);
         return contacts.stream().map(ContactServiceMapper::fromContactEntityToContact).toList();
 
     }
@@ -38,21 +40,18 @@ public class GetContactService implements GetContact {
     @Override
     public Contact getContactById(Long id) {
         var contact = contactRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Contact not found"));
-
         return ContactServiceMapper.fromContactEntityToContact(contact);
     }
 
     @Override
     public Contact getContactByName(String name) {
         var contact = contactRepository.findByName(name).orElseThrow(()-> new ResourceNotFoundException("Contact not found"));
-
         return ContactServiceMapper.fromContactEntityToContact(contact);
     }
 
     @Override
     public Contact getContactByNumber(String number) {
         var contact = contactRepository.findByNumber(number).orElseThrow(()-> new ResourceNotFoundException("Contact not found"));
-
         return ContactServiceMapper.fromContactEntityToContact(contact);
     }
 

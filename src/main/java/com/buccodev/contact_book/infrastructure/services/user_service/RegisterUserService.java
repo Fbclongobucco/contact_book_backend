@@ -20,8 +20,8 @@ public class RegisterUserService implements RegisterUser {
     @Override
     public User registerUser(User user) {
 
-        if(repository.existsByEmail(user.getEmail()) || repository.existsByName(user.getName())) {
-        throw new UserAlreadyExistsException("User already exists by email or name");
+        if(repository.existsByEmail(user.getEmail())) {
+        throw new UserAlreadyExistsException("User already exists by email!");
         }
         var userEntity = new UserEntity(user);
         var userSaved = repository.save(userEntity);

@@ -1,4 +1,4 @@
-package com.buccodev.contact_book.infrastructure.controllers.user_controller;
+package com.buccodev.contact_book.infrastructure.controllers.contact_controller;
 
 import com.buccodev.contact_book.application.gateway.contact_gateway.DeleteContactGateway;
 import com.buccodev.contact_book.application.gateway.contact_gateway.GetContactGateway;

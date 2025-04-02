@@ -5,6 +5,7 @@ import com.buccodev.contact_book.core.domain.Contact;
 import com.buccodev.contact_book.infrastructure.repositories.entities.ContactEntity;
 import com.buccodev.contact_book.infrastructure.repositories.entities_respository.ContactEntityRepository;
 import com.buccodev.contact_book.infrastructure.repositories.entities_respository.UserEntityRepository;
+import com.buccodev.contact_book.infrastructure.services.exceptions.InvalidQueryParametersException;
 import com.buccodev.contact_book.infrastructure.services.exceptions.ResourceNotFoundException;
 import com.buccodev.contact_book.infrastructure.services.utils.ContactServiceMapper;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +28,10 @@ public class GetContactService implements GetContact {
 
     @Override
     public List<Contact> getAllContactsByUser(Long userId, Integer page, Integer size) {
+
+        if(page < 0 || size < 0) {
+            throw new InvalidQueryParametersException("Invalid query parameters");
+        }
 
         if(!userRepository.existsById(userId)) {
             throw new ResourceNotFoundException("User not found");

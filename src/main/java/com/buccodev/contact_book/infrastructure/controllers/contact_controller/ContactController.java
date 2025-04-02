@@ -32,7 +32,7 @@ public class ContactController {
         this.deleteContactGateway = deleteContactGateway;
     }
 
-    @PostMapping("/{userId}")
+    @PostMapping("/user/{userId}")
     public ResponseEntity<ContactResponseDto> registerContact( @PathVariable
                                                                Long userId,
                                                                @Valid @RequestBody
@@ -41,7 +41,7 @@ public class ContactController {
         var contact = registerContactGateway.registerContact(userId, contactRequestDto);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
-                .path("/{id}")
+                .replacePath("/contacts/{id}")
                 .buildAndExpand(contact.id())
                 .toUri();
 

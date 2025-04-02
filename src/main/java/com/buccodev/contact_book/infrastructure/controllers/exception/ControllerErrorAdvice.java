@@ -4,10 +4,9 @@ import com.buccodev.contact_book.application.gateway.exception.*;
 import com.buccodev.contact_book.core.exceptions.EmailValidationException;
 import com.buccodev.contact_book.core.exceptions.NumberValidationException;
 import com.buccodev.contact_book.core.exceptions.PasswordValidationException;
-import com.buccodev.contact_book.infrastructure.services.exceptions.CredentialsInvalidException;
-import com.buccodev.contact_book.infrastructure.services.exceptions.InvalidQueryParametersException;
-import com.buccodev.contact_book.infrastructure.services.exceptions.ResourceNotFoundException;
-import com.buccodev.contact_book.infrastructure.services.exceptions.UserAlreadyExistsException;
+import com.buccodev.contact_book.infrastructure.controllers.exception.dtos_response.BeanValidationErrorResponse;
+import com.buccodev.contact_book.infrastructure.controllers.exception.dtos_response.StandardError;
+import com.buccodev.contact_book.infrastructure.services.exceptions.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,30 +23,32 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class ControllerErrorAdvice {
 
-    private ResponseEntity<StandardError> buildErrorResponse(Exception e, HttpServletRequest request, HttpStatus status, List<Map<String, String>> errors) {
+    private ResponseEntity<StandardError> buildErrorResponse(Exception e, HttpServletRequest request, HttpStatus status) {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-
-            return ResponseEntity.status(status).body(new StandardError(timestamp, status.value(), request.getRequestURI(), errors));
-
+        return ResponseEntity.status(status)
+                .body(new StandardError(timestamp, status.value(), e.getMessage(), request.getRequestURI()));
     }
+
 
     @ExceptionHandler({
             EmailValidationException.class,
             NumberValidationException.class,
-            PasswordValidationException.class,
-            UserAlreadyExistsException.class
+            PasswordValidationException.class
     })
     public ResponseEntity<StandardError> handleValidationExceptions(Exception e, HttpServletRequest request) {
-        return buildErrorResponse(e, request, HttpStatus.UNPROCESSABLE_ENTITY, List.of(Map.of("message", e.getMessage())));
+        return buildErrorResponse(e, request, HttpStatus.UNPROCESSABLE_ENTITY);
     }
+
 
     @ExceptionHandler({
             ContactDuplicateException.class,
-            UserDuplicateException.class
+            UserDuplicateException.class,
+            UserAlreadyExistsException.class
     })
     public ResponseEntity<StandardError> handleDuplicateExceptions(Exception e, HttpServletRequest request) {
-        return buildErrorResponse(e, request, HttpStatus.CONFLICT, List.of(Map.of("message", e.getMessage())));
+        return buildErrorResponse(e, request, HttpStatus.CONFLICT);
     }
+
 
     @ExceptionHandler({
             ContactNotFoundException.class,
@@ -55,21 +56,32 @@ public class ControllerErrorAdvice {
             ResourceNotFoundException.class
     })
     public ResponseEntity<StandardError> handleNotFoundExceptions(Exception e, HttpServletRequest request) {
-        return buildErrorResponse(e, request, HttpStatus.NOT_FOUND, List.of(Map.of("message", e.getMessage())));
+        return buildErrorResponse(e, request, HttpStatus.NOT_FOUND);
     }
 
+
     @ExceptionHandler({
-            UserCredendialsException.class,
+            UserCredentialsException.class,
             CredentialsInvalidException.class
     })
     public ResponseEntity<StandardError> handleUnauthorizedExceptions(Exception e, HttpServletRequest request) {
-        return buildErrorResponse(e, request, HttpStatus.UNAUTHORIZED, List.of(Map.of("message", e.getMessage())));
+        return buildErrorResponse(e, request, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<StandardError> handleMethodArgumentNotValid(MethodArgumentNotValidException e, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
 
+    @ExceptionHandler(InvalidQueryParametersException.class)
+    public ResponseEntity<StandardError> handleInvalidQueryParameters(InvalidQueryParametersException e, HttpServletRequest request) {
+        return buildErrorResponse(e, request, HttpStatus.BAD_REQUEST);
+    }
+
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<BeanValidationErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException e, HttpServletRequest request) {
+
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
+
+        // Lista apenas os campos que possuem mensagens de erro
         List<Map<String, String>> errors = e.getBindingResult().getFieldErrors().stream()
                 .map(fieldError -> Map.of(
                         "field", fieldError.getField(),
@@ -77,11 +89,7 @@ public class ControllerErrorAdvice {
                 ))
                 .collect(Collectors.toList());
 
-        return buildErrorResponse(e, request, status, errors);
-    }
-
-    @ExceptionHandler(InvalidQueryParametersException.class)
-    public ResponseEntity<StandardError> handleInvalidQueryParameters(InvalidQueryParametersException e, HttpServletRequest request) {
-        return buildErrorResponse(e, request, HttpStatus.BAD_REQUEST, List.of(Map.of("message", e.getMessage())));
+        return ResponseEntity.status(status)
+                .body(new BeanValidationErrorResponse(timestamp, status.value(), errors, request.getRequestURI()));
     }
 }

@@ -1,6 +1,6 @@
 package com.buccodev.contact_book.application.gateway.user_gateway;
 
-import com.buccodev.contact_book.application.gateway.exception.UserCredendialsException;
+import com.buccodev.contact_book.application.gateway.exception.UserCredentialsException;
 import com.buccodev.contact_book.application.gateway.exception.UserNotFoundException;
 import com.buccodev.contact_book.application.usecases.user_usecases.GetUser;
 import com.buccodev.contact_book.application.utils.dtos.user_dtos.UserLoginDto;
@@ -43,7 +43,7 @@ public class GetUserGateway {
         var userSalved =  getUser.login(userLoginDto.email(), userLoginDto.password());
 
         if(userSalved == null) {
-            throw new UserCredendialsException("Invalid credendials");
+            throw new UserCredentialsException("Invalid credendials");
         }
         return UserGatewayMapper.fromUserToResponseDto(userSalved);
     }
